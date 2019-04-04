@@ -45,4 +45,4 @@ Go Network connections:
 
 - [TCP/IP Networking](https://appliedgo.net/networking/). Also [tcpip](https://github.com/billglover/tcpip).
 - [Building messaging in Go network clients](https://www.oreilly.com/ideas/building-messaging-in-go-network-clients).
-- [Network Protocol Breakdown: NDP and Go.](https://medium.com/@mdlayher/network-protocol-breakdown-ndp-and-go-3dc2900b1c20).
+- [Network Protocol Breakdown: NDP and Go](https://medium.com/@mdlayher/network-protocol-breakdown-ndp-and-go-3dc2900b1c20).

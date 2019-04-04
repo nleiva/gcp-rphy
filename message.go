@@ -71,6 +71,8 @@ const (
 
 var parseFns = map[MessageID]func(MessageID, []byte) (MessageBody, error){
 	MessageIDNotifyReq: parseNotifyReq,
+	MessageIDEDSReq:    parseEDSReq,
+	MessageIDEDSRes:    parseEDSRes,
 }
 
 // A RawBody represents a raw message body.
@@ -116,19 +118,14 @@ func ParseMessage(b []byte) (*Message, error) {
 	if len(b) < 3 {
 		return nil, ErrMessageTooShort
 	}
-	var mid MessageID
-	switch n := MessageID(int(b[0])); n {
-	case MessageIDNotifyReq:
-		mid = MessageIDNotifyReq
-	default:
-		return nil, errMessageID
-	}
+	id := int(b[0])
+	mlen := binary.BigEndian.Uint16(b[1:3])
 	var err error
-	m := &Message{MessageID: int(b[0]), Lenght: binary.BigEndian.Uint16(b[1:3])}
-	if fn, ok := parseFns[mid]; !ok {
+	m := &Message{MessageID: id, Lenght: mlen}
+	if fn, ok := parseFns[MessageID(id)]; !ok {
 		m.Body, err = parseRawBody(b[3:])
 	} else {
-		m.Body, err = fn(mid, b[4:])
+		m.Body, err = fn(MessageID(id), b[4:])
 	}
 	if err != nil {
 		return nil, err
