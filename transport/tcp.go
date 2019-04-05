@@ -29,7 +29,7 @@ type TCPmessage struct {
 	TranID uint16 // Transaction Identifier 2 bytes
 	ProtID uint16 // Protocol Identifier 2 bytes
 	Len    uint16 // Length 2 bytes
-	UnitID int    // Unit Identifier 1 byte
+	UnitID uint8  // Unit Identifier 1 byte
 	Msg    []byte // Message Field N bytes
 }
 
@@ -54,7 +54,7 @@ func UnMarshal(b []byte) (TCPmessage, error) {
 		TranID: binary.BigEndian.Uint16(b[:2]),
 		ProtID: binary.BigEndian.Uint16(b[2:4]),
 		Len:    binary.BigEndian.Uint16(b[4:6]),
-		UnitID: int(b[6]),
+		UnitID: uint8(b[6]),
 	}
 	if bodyLen > 7 {
 		p.Msg = make([]byte, bodyLen-7)
