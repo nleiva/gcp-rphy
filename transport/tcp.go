@@ -26,21 +26,21 @@ type Transport interface {
 
 // TCPmessage represents the TCP Payload Encapsulation.
 type TCPmessage struct {
-	tid uint16 // Transaction Identifier 2 bytes
-	pid uint16 // Protocol Identifier 2 bytes
-	len uint16 // Length 2 bytes
-	uid int    // Unit Identifier 1 byte
-	msg []byte // Message Field N bytes
+	TranID uint16 // Transaction Identifier 2 bytes
+	ProtID uint16 // Protocol Identifier 2 bytes
+	Len    uint16 // Length 2 bytes
+	UnitID int    // Unit Identifier 1 byte
+	Msg    []byte // Message Field N bytes
 }
 
 // Marshal encapsulates a GCP TCP message.
 func (p TCPmessage) Marshal() ([]byte, error) {
-	b := make([]byte, 7+len(p.msg))
-	binary.BigEndian.PutUint16(b[:2], uint16(p.tid))
-	binary.BigEndian.PutUint16(b[2:4], uint16(p.pid))
-	binary.BigEndian.PutUint16(b[4:6], uint16(p.len))
-	b[6] = byte(p.uid)
-	copy(b[7:], p.msg)
+	b := make([]byte, 7+len(p.Msg))
+	binary.BigEndian.PutUint16(b[:2], uint16(p.TranID))
+	binary.BigEndian.PutUint16(b[2:4], uint16(p.ProtID))
+	binary.BigEndian.PutUint16(b[4:6], uint16(p.Len))
+	b[6] = byte(p.UnitID)
+	copy(b[7:], p.Msg)
 	return b, nil
 }
 
@@ -51,14 +51,14 @@ func UnMarshal(b []byte) (TCPmessage, error) {
 		return TCPmessage{}, gcp.ErrMessageTooShort
 	}
 	p := TCPmessage{
-		tid: binary.BigEndian.Uint16(b[:2]),
-		pid: binary.BigEndian.Uint16(b[2:4]),
-		len: binary.BigEndian.Uint16(b[4:6]),
-		uid: int(b[6]),
+		TranID: binary.BigEndian.Uint16(b[:2]),
+		ProtID: binary.BigEndian.Uint16(b[2:4]),
+		Len:    binary.BigEndian.Uint16(b[4:6]),
+		UnitID: int(b[6]),
 	}
 	if bodyLen > 7 {
-		p.msg = make([]byte, bodyLen-7)
-		copy(p.msg, b[7:])
+		p.Msg = make([]byte, bodyLen-7)
+		copy(p.Msg, b[7:])
 	}
 	return p, nil
 }
@@ -130,11 +130,11 @@ func (e TCPEnd) Send(b []byte) error {
 // CraftPkt encapsulates a GCP/TCP message.
 func (e TCPEnd) CraftPkt(b []byte) (TCPmessage, error) {
 	m := TCPmessage{
-		tid: 0,                  // Unique transaction ID. A value of 0 means to ignore this field.
-		pid: 1,                  // 1 = GCP Protocol Version 1.
-		len: uint16(1 + len(b)), // Length of Unit Identifier Field plus Message Field
-		uid: 0,                  // Unit addressing with a device. Default is 0.
-		msg: b,                  // One or more GCP messages
+		TranID: 0,                  // Unique transaction ID. A value of 0 means to ignore this field.
+		ProtID: 1,                  // 1 = GCP Protocol Version 1.
+		Len:    uint16(1 + len(b)), // Length of Unit Identifier Field plus Message Field
+		UnitID: 0,                  // Unit addressing with a device. Default is 0.
+		Msg:    b,                  // One or more GCP messages
 	}
 	return m, nil
 }
@@ -160,7 +160,7 @@ func handleMessage(c net.Conn) {
 				log.Printf("failed unmarshaling TCP message: %s\n", err.Error())
 				continue
 			}
-			m, err := gcp.ParseMessage(pkt.msg)
+			m, err := gcp.ParseMessage(pkt.Msg)
 			if err != nil {
 				log.Printf("could not parse GCP message: %s\n", err.Error())
 				continue
