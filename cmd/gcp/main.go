@@ -65,7 +65,7 @@ func main() {
 }
 
 // Encapsulate is a temp function to encapsulate a GCP message
-func Encapsulate(id, tid int, b []byte) (gcp.Message, error) {
+func Encapsulate(id uint8, tid uint16, b []byte) (gcp.Message, error) {
 	m := gcp.Message{
 		MessageID: id,
 		Lenght:    uint16(len(b)),
@@ -74,7 +74,7 @@ func Encapsulate(id, tid int, b []byte) (gcp.Message, error) {
 	switch n := gcp.MessageID(id); n {
 	case gcp.MessageIDNotifyReq:
 		m.Body = &gcp.NotifyReq{
-			TransactionID: rand.Int(),
+			TransactionID: uint16(rand.Int()),
 			// TODO: Change this.
 			Mode: 0,
 			// TODO: Change this.

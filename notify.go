@@ -7,10 +7,10 @@ import (
 
 // An NotifyReq represents a GCP Notify Request message body.
 type NotifyReq struct {
-	TransactionID int    // Transaction ID: 2 bytes
-	Mode          byte   // Mode: 1 byte
-	Status        int    // Status: 1 byte
-	EvntCode      int    // Event Code: 4 bytes
+	TransactionID uint16 // Transaction ID: 2 bytes
+	Mode          uint8  // Mode: 1 byte
+	Status        uint8  // Status: 1 byte
+	EvntCode      uint32 // Event Code: 4 bytes
 	EvntData      []byte // Event Data: N bytes
 }
 
@@ -39,10 +39,10 @@ func (p *NotifyReq) Print() string {
 // Marshal implements the Marshal method of MessageBody interface.
 func (p *NotifyReq) Marshal() ([]byte, error) {
 	b := make([]byte, 8+len(p.EvntData))
-	binary.BigEndian.PutUint16(b[:2], uint16(p.TransactionID))
-	b[2] = p.Mode
+	binary.BigEndian.PutUint16(b[:2], p.TransactionID)
+	b[2] = byte(p.Mode)
 	b[3] = byte(p.Status)
-	binary.BigEndian.PutUint32(b[4:8], uint32(p.EvntCode))
+	binary.BigEndian.PutUint32(b[4:8], p.EvntCode)
 	copy(b[8:], p.EvntData)
 	return b, nil
 }
@@ -54,10 +54,10 @@ func parseNotifyReq(_ MessageID, b []byte) (MessageBody, error) {
 		return nil, ErrMessageTooShort
 	}
 	p := &NotifyReq{
-		TransactionID: int(binary.BigEndian.Uint16(b[:2])),
-		Mode:          (b[2]),
-		Status:        int(b[3]),
-		EvntCode:      int(binary.BigEndian.Uint32(b[4:8])),
+		TransactionID: binary.BigEndian.Uint16(b[:2]),
+		Mode:          uint8(b[2]),
+		Status:        uint8(b[3]),
+		EvntCode:      binary.BigEndian.Uint32(b[4:8]),
 	}
 	if bodyLen > 8 {
 		p.EvntData = make([]byte, bodyLen-8)
@@ -68,9 +68,9 @@ func parseNotifyReq(_ MessageID, b []byte) (MessageBody, error) {
 
 // An NotifyRes represents a GCP Notify Response message body.
 type NotifyRes struct {
-	TransactionID int  // Transaction ID: 2 bytes
-	Mode          byte // Mode: 1 byte
-	EvntCode      int  // Event Code: 4 bytes
+	TransactionID uint16 // Transaction ID: 2 bytes
+	Mode          uint8  // Mode: 1 byte
+	EvntCode      uint32 // Event Code: 4 bytes
 }
 
 // Len implements the Len method of MessageBody interface.
@@ -96,9 +96,9 @@ func (p *NotifyRes) Print() string {
 // Marshal implements the Marshal method of MessageBody interface.
 func (p *NotifyRes) Marshal() ([]byte, error) {
 	b := make([]byte, 7)
-	binary.BigEndian.PutUint16(b[:2], uint16(p.TransactionID))
-	b[2] = p.Mode
-	binary.BigEndian.PutUint32(b[3:7], uint32(p.EvntCode))
+	binary.BigEndian.PutUint16(b[:2], p.TransactionID)
+	b[2] = byte(p.Mode)
+	binary.BigEndian.PutUint32(b[3:7], p.EvntCode)
 	return b, nil
 }
 
@@ -109,17 +109,17 @@ func parseNotifyRes(_ MessageID, b []byte) (MessageBody, error) {
 		return nil, ErrMessageTooShort
 	}
 	p := &NotifyRes{
-		TransactionID: int(binary.BigEndian.Uint16(b[:2])),
-		Mode:          (b[2]),
-		EvntCode:      int(binary.BigEndian.Uint32(b[3:7])),
+		TransactionID: binary.BigEndian.Uint16(b[:2]),
+		Mode:          uint8(b[2]),
+		EvntCode:      binary.BigEndian.Uint32(b[3:7]),
 	}
 	return p, nil
 }
 
 // An NotifyErr represents a GCP Notify Response message body.
 type NotifyErr struct {
-	TransactionID int // Transaction ID: 2 bytes
-	RtrnCode      int // Return Code: 1 byte
+	TransactionID uint16 // Transaction ID: 2 bytes
+	RtrnCode      uint8  // Return Code: 1 byte
 }
 
 // Len implements the Len method of MessageBody interface.
@@ -144,7 +144,7 @@ func (p *NotifyErr) Print() string {
 // Marshal implements the Marshal method of MessageBody interface.
 func (p *NotifyErr) Marshal() ([]byte, error) {
 	b := make([]byte, 3)
-	binary.BigEndian.PutUint16(b[:2], uint16(p.TransactionID))
+	binary.BigEndian.PutUint16(b[:2], p.TransactionID)
 	b[2] = byte(p.RtrnCode)
 	return b, nil
 }
@@ -156,8 +156,8 @@ func parseNotifyErr(_ MessageID, b []byte) (MessageBody, error) {
 		return nil, ErrMessageTooShort
 	}
 	p := &NotifyErr{
-		TransactionID: int(binary.BigEndian.Uint16(b[:2])),
-		RtrnCode:      int(b[2]),
+		TransactionID: binary.BigEndian.Uint16(b[:2]),
+		RtrnCode:      uint8(b[2]),
 	}
 	return p, nil
 }

@@ -8,7 +8,7 @@ import (
 
 // A Message represents a GCP message.
 type Message struct {
-	MessageID int    // Message Identifier: 1 byte
+	MessageID uint8  // Message Identifier: 1 byte
 	Lenght    uint16 // Message Length: 2 bytes
 	Body      MessageBody
 }
@@ -21,7 +21,7 @@ type MessageBody interface {
 }
 
 // A MessageID represents a Message ID of a GCP message.
-type MessageID int
+type MessageID uint8
 
 // Error messages
 var (
@@ -118,14 +118,14 @@ func ParseMessage(b []byte) (*Message, error) {
 	if len(b) < 3 {
 		return nil, ErrMessageTooShort
 	}
-	id := int(b[0])
+	id := uint8(b[0])
 	mlen := binary.BigEndian.Uint16(b[1:3])
 	var err error
 	m := &Message{MessageID: id, Lenght: mlen}
 	if fn, ok := parseFns[MessageID(id)]; !ok {
 		m.Body, err = parseRawBody(b[3:])
 	} else {
-		m.Body, err = fn(MessageID(id), b[4:])
+		m.Body, err = fn(MessageID(id), b[3:])
 	}
 	if err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func (p *Message) Marshal() ([]byte, error) {
 	}
 	b := make([]byte, 3+len(bd))
 	b[0] = byte(p.MessageID)
-	binary.BigEndian.PutUint16(b[1:3], uint16(p.Lenght))
+	binary.BigEndian.PutUint16(b[1:3], p.Lenght)
 	copy(b[3:], bd)
 	return b, nil
 }
