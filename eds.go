@@ -38,16 +38,25 @@ func (p *EDSReq) Print() string {
 	if p == nil {
 		return ""
 	}
+	data := "\n"
+	tlvs, err := parseTLVs(p.DataStr)
+	if err != nil {
+		return err.Error()
+	}
+	for _, t := range tlvs {
+		// data = data + fmt.Sprintf("Type: %v, Length: %v, Value: %v\n", t.Type, t.Length, t.Value)
+		data = data + fmt.Sprintf("        Type: %v, Length: %v\n", t.Type, t.Length)
+	}
 	return fmt.Sprintf(`
-	Transaction ID: %d
-	Mode: %v
-	Port: %d
-	Channel: %d
-	Vendor ID: %v
-	Vendor Index: %v
-	Data Structures: %v`,
+    Transaction ID: %d
+    Mode: %v
+    Port: %d
+    Channel: %d
+    Vendor ID: %v
+    Vendor Index: %v
+    Data Structures: %s`,
 		p.TransactionID, p.Mode, p.Port, p.Channel, p.VendorID,
-		p.VendorIdx, p.DataStr)
+		p.VendorIdx, data)
 }
 
 // Marshal implements the Marshal method of MessageBody interface.
@@ -109,16 +118,25 @@ func (p *EDSRes) Print() string {
 	if p == nil {
 		return ""
 	}
+	data := "\n"
+	tlvs, err := parseTLVs(p.DataStr)
+	if err != nil {
+		return err.Error()
+	}
+	for _, t := range tlvs {
+		// data = data + fmt.Sprintf("Type: %v, Length: %v, Value: %v\n", t.Type, t.Length, t.Value)
+		data = data + fmt.Sprintf("        Type: %v, Length: %v\n", t.Type, t.Length)
+	}
 	return fmt.Sprintf(`
-	Transaction ID: %d
-	Mode: %v
-	Port: %d
-	Channel: %d
-	Vendor ID: %v
-	Vendor Index: %v
-	Data Structures: %v`,
+    Transaction ID: %d
+    Mode: %v
+    Port: %d
+    Channel: %d
+    Vendor ID: %v
+    Vendor Index: %v
+    Data Structures: %s`,
 		p.TransactionID, p.Mode, p.Port, p.Channel, p.VendorID,
-		p.VendorIdx, p.DataStr)
+		p.VendorIdx, data)
 }
 
 // Marshal implements the Marshal method of MessageBody interface.

@@ -27,13 +27,22 @@ func (p *NotifyReq) Print() string {
 	if p == nil {
 		return ""
 	}
+	data := "\n"
+	tlvs, err := parseTLVs(p.EvntData)
+	if err != nil {
+		return err.Error()
+	}
+	for _, t := range tlvs {
+		// data = data + fmt.Sprintf("Type: %v, Length: %v, Value: %v\n", t.Type, t.Length, t.Value)
+		data = data + fmt.Sprintf("        Type: %v, Length: %v\n", t.Type, t.Length)
+	}
 	return fmt.Sprintf(`
-	Transaction ID: %d
-	Mode: %v
-	Status: %d
-	Event Code: %d
-	Event Data: %v`,
-		p.TransactionID, p.Mode, p.Status, p.EvntCode, p.EvntData)
+    Transaction ID: %d
+    Mode: %v
+    Status: %d
+    Event Code: %d
+    Event Data: %s`,
+		p.TransactionID, p.Mode, p.Status, p.EvntCode, data)
 }
 
 // Marshal implements the Marshal method of MessageBody interface.
@@ -87,9 +96,9 @@ func (p *NotifyRes) Print() string {
 		return ""
 	}
 	return fmt.Sprintf(`
-	Transaction ID: %d
-	Mode: %v
-	Event Code: %d`,
+    Transaction ID: %d
+    Mode: %v
+    Event Code: %d`,
 		p.TransactionID, p.Mode, p.EvntCode)
 }
 
@@ -136,8 +145,8 @@ func (p *NotifyErr) Print() string {
 		return ""
 	}
 	return fmt.Sprintf(`
-	Transaction ID: %d
-	Return Code: %d`,
+    Transaction ID: %d
+    Return Code: %d`,
 		p.TransactionID, p.RtrnCode)
 }
 
