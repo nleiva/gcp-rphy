@@ -34,7 +34,7 @@ func (p *NotifyReq) Print() string {
 	}
 	for _, t := range tlvs {
 		// data = data + fmt.Sprintf("Type: %v, Length: %v, Value: %v\n", t.Type, t.Length, t.Value)
-		data = data + fmt.Sprintf("        Type: %v, Length: %v\n", t.Type, t.Length)
+		data = data + fmt.Sprintf("        Type: %s, Length: %v\n", t.Name(), t.Len())
 	}
 	return fmt.Sprintf(`
     Transaction ID: %d
