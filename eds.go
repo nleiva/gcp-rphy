@@ -44,8 +44,12 @@ func (p *EDSReq) Print() string {
 		return err.Error()
 	}
 	for _, t := range tlvs {
-		// data = data + fmt.Sprintf("Type: %v, Length: %v, Value: %v\n", t.Type, t.Length, t.Value)
-		data = data + fmt.Sprintf("        Type: %s, Length: %v\n", t.Name(), t.Len())
+		switch t.IsComplex() {
+		case true:
+			data = data + fmt.Sprintf("        Type: %s, Length: %v ->\n", t.Name(), t.Len())
+		default:
+			data = data + fmt.Sprintf("        Type: %s, Length: %v, Value: %v\n", t.Name(), t.Len(), t.Val())
+		}
 	}
 	return fmt.Sprintf(`
     Transaction ID: %d
@@ -124,8 +128,12 @@ func (p *EDSRes) Print() string {
 		return err.Error()
 	}
 	for _, t := range tlvs {
-		// data = data + fmt.Sprintf("Type: %v, Length: %v, Value: %v\n", t.Type, t.Length, t.Value)
-		data = data + fmt.Sprintf("        Type: %s, Length: %v\n", t.Name(), t.Len())
+		switch t.IsComplex() {
+		case true:
+			data = data + fmt.Sprintf("        Type: %s, Length: %v ->\n", t.Name(), t.Len())
+		default:
+			data = data + fmt.Sprintf("        Type: %s, Length: %v, Value: %v\n", t.Name(), t.Len(), t.Val())
+		}
 	}
 	return fmt.Sprintf(`
     Transaction ID: %d

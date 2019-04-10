@@ -14,11 +14,11 @@ type TLV struct {
 	Value  []byte
 }
 
-// An RCP encodes a TLV used in the RCP protocol.
+// An RCP encodes a TLV used in the Remote PHY System Control Plane (RCP).
 type RCP interface {
 	Name() string
 	Len() uint16
-	// Add Value() interface{} to expose the value of IsComplex == false.
+	Val() interface{}
 	IsComplex() bool
 	marshal() ([]byte, error)
 	unmarshal(b []byte) error
@@ -84,6 +84,11 @@ func (t *TLV) IsComplex() bool {
 	}
 }
 
+// Val returns the value the TLV carries.
+func (t *TLV) Val() interface{} {
+	return t.Value
+}
+
 // A NTF is a NTF Message TLV (Complex TLV).
 type NTF struct {
 	Type   uint8  // Type: 1 byte
@@ -103,8 +108,7 @@ func (t *NTF) marshal() ([]byte, error) {
 		Length: t.Length,
 		Value:  t.Value,
 	}
-	b, err := tlv.marshal()
-	return b, err
+	return tlv.marshal()
 }
 
 func (t *NTF) unmarshal(b []byte) error {
@@ -114,13 +118,18 @@ func (t *NTF) unmarshal(b []byte) error {
 	}
 	t.Type = tlv.Type
 	t.Length = tlv.Length
-	copy(t.Value, tlv.Value)
+	t.Value = append(tlv.Value[:0:0], tlv.Value...)
 	return nil
 }
 
 // IsComplex returns whether a NTF Message TLV is Complex or not.
 func (t *NTF) IsComplex() bool {
 	return true
+}
+
+// Val returns the value a NTF Message TLV carries.
+func (t *NTF) Val() interface{} {
+	return t.Value
 }
 
 // A SeqNmr is a SequenceNumber TLV.
@@ -146,8 +155,7 @@ func (t *SeqNmr) marshal() ([]byte, error) {
 		Value:  t.Value,
 	}
 	// TODO: Validate Length and Value Length is 2.
-	b, err := tlv.marshal()
-	return b, err
+	return tlv.marshal()
 }
 
 func (t *SeqNmr) unmarshal(b []byte) error {
@@ -158,13 +166,21 @@ func (t *SeqNmr) unmarshal(b []byte) error {
 	t.Type = tlv.Type
 	t.Length = tlv.Length
 	// TODO: Validate Length and Value Length is 2.
-	copy(t.Value, tlv.Value)
+	t.Value = append(tlv.Value[:0:0], tlv.Value...)
 	return nil
 }
 
 // IsComplex returns whether a SequenceNumber TLV is Complex or not.
 func (t *SeqNmr) IsComplex() bool {
 	return false
+}
+
+// Val returns the value a SequenceNumber TLV carries.
+func (t *SeqNmr) Val() interface{} {
+	if len(t.Value) != 2 {
+		return fmt.Errorf("unexpected lenght: %v, want: 2", len(t.Value))
+	}
+	return binary.BigEndian.Uint16(t.Value)
 }
 
 // parseTLVs ...
@@ -239,8 +255,6 @@ const (
 	GnrlNtf   RCPType = 86  // Complex TLV - GeneralNotification
 	RpdInfo   RCPType = 100 // Complex TLV - RpdInfo
 )
-
-// RpdIdentification (19) will need different TLV processing
 
 // General purpose TLVs
 //
