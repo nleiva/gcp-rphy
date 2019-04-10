@@ -75,7 +75,7 @@ func (t *TLV) IsComplex() bool {
 	tp := RCPType(t.Type)
 	switch tp {
 	// Complex TLV
-	case IRA, REX, Seq, RfPortSel, RpdCap, GnrlNtf, RpdInfo:
+	case IRA, REX, Seq, RfPortSel, GnrlNtf, RpdInfo:
 		return true
 	case Oper:
 		return false
@@ -91,84 +91,24 @@ func (t *TLV) Val() interface{} {
 
 // A NTF is a NTF Message TLV (Complex TLV).
 type NTF struct {
-	Type   uint8  // Type: 1 byte
-	Length uint16 // Value Length: 2 bytes
-	Value  []byte
+	TLV
 }
 
 // Name returns the type name of a NTF Message TLV.
 func (t *NTF) Name() string { return "NTF" }
-
-// Len returns the Length of a NTF Message TLV.
-func (t *NTF) Len() uint16 { return t.Length }
-
-func (t *NTF) marshal() ([]byte, error) {
-	tlv := &TLV{
-		Type:   t.Type,
-		Length: t.Length,
-		Value:  t.Value,
-	}
-	return tlv.marshal()
-}
-
-func (t *NTF) unmarshal(b []byte) error {
-	tlv := new(TLV)
-	if err := tlv.unmarshal(b); err != nil {
-		return err
-	}
-	t.Type = tlv.Type
-	t.Length = tlv.Length
-	t.Value = append(tlv.Value[:0:0], tlv.Value...)
-	return nil
-}
 
 // IsComplex returns whether a NTF Message TLV is Complex or not.
 func (t *NTF) IsComplex() bool {
 	return true
 }
 
-// Val returns the value a NTF Message TLV carries.
-func (t *NTF) Val() interface{} {
-	return t.Value
-}
-
 // A SeqNmr is a SequenceNumber TLV.
 type SeqNmr struct {
-	Type   uint8  // Type: 1 byte
-	Length uint16 // Value Length: 2 bytes
-	Value  []byte
+	TLV
 }
 
 // Name returns the type name of a NTF Message TLV.
 func (t *SeqNmr) Name() string { return "SequenceNumber" }
-
-// Len returns the Length of a SequenceNumber TLV.
-func (t *SeqNmr) Len() uint16 {
-	// TODO: Verify this is always 2.
-	return t.Length
-}
-
-func (t *SeqNmr) marshal() ([]byte, error) {
-	tlv := &TLV{
-		Type:   t.Type,
-		Length: t.Length,
-		Value:  t.Value,
-	}
-	// TODO: Validate Length and Value Length is 2.
-	return tlv.marshal()
-}
-
-func (t *SeqNmr) unmarshal(b []byte) error {
-	tlv := new(TLV)
-	if err := tlv.unmarshal(b); err != nil {
-		return err
-	}
-	t.Type = tlv.Type
-	t.Length = tlv.Length
-	// TODO: Validate Length and Value Length is 2.
-	t.Value = append(tlv.Value[:0:0], tlv.Value...)
-	return nil
-}
 
 // IsComplex returns whether a SequenceNumber TLV is Complex or not.
 func (t *SeqNmr) IsComplex() bool {
@@ -181,6 +121,19 @@ func (t *SeqNmr) Val() interface{} {
 		return fmt.Errorf("unexpected lenght: %v, want: 2", len(t.Value))
 	}
 	return binary.BigEndian.Uint16(t.Value)
+}
+
+// A RpdCap is a RpdCapabilities TLV (Complex TLV).
+type RpdCap struct {
+	TLV
+}
+
+// Name returns the type name of a NTF Message TLV.
+func (t *RpdCap) Name() string { return "RpdCapabilities" }
+
+// IsComplex returns whether a RpdCapabilities TLV is Complex or not.
+func (t *RpdCap) IsComplex() bool {
+	return true
 }
 
 // parseTLVs ...
@@ -208,6 +161,8 @@ func parseTLVs(b []byte) ([]RCP, error) {
 			tlv = new(NTF)
 		case 10:
 			tlv = new(SeqNmr)
+		case 50:
+			tlv = new(RpdCap)
 		default:
 			tlv = new(TLV)
 		}
@@ -251,7 +206,6 @@ const (
 	Seq       RCPType = 9   // Complex TLV - Sequence
 	Oper      RCPType = 11  // UnsignedByte - Operation
 	RfPortSel RCPType = 13  // Complex TLV - RfPortSelector
-	RpdCap    RCPType = 50  // Complex TLV - RpdCapabilities
 	GnrlNtf   RCPType = 86  // Complex TLV - GeneralNotification
 	RpdInfo   RCPType = 100 // Complex TLV - RpdInfo
 )
