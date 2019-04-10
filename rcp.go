@@ -22,6 +22,8 @@ type RCP interface {
 	IsComplex() bool
 	marshal() ([]byte, error)
 	unmarshal(b []byte) error
+	// The output of parseTLVs could change to adapt to requirements.
+	parseTLVs(b []byte) ([]RCP, error)
 }
 
 // Error messages
@@ -34,6 +36,11 @@ func (t *TLV) Name() string { return strconv.Itoa(int(t.Type)) }
 
 // Len returns the length of the TLV.
 func (t *TLV) Len() uint16 { return t.Length }
+
+// Val returns the value the TLV carries.
+func (t *TLV) Val() interface{} {
+	return t.Value
+}
 
 func (t *TLV) marshal() ([]byte, error) {
 	l := int(t.Length)
@@ -72,33 +79,63 @@ func (t *TLV) unmarshal(b []byte) error {
 
 // IsComplex returns whether the TLV is Complex or not.
 func (t *TLV) IsComplex() bool {
-	tp := RCPType(t.Type)
-	switch tp {
-	// Complex TLV
-	case IRA, REX, Seq, RfPortSel, GnrlNtf, RpdInfo:
-		return true
-	case Oper:
-		return false
-	default:
-		return false
-	}
+	return false
+
 }
 
-// Val returns the value the TLV carries.
-func (t *TLV) Val() interface{} {
-	return t.Value
+func (t *TLV) parseTLVs(b []byte) ([]RCP, error) {
+	return parseTLVs(b)
 }
 
-// A NTF is a NTF Message TLV (Complex TLV).
+// A IRA is a IRA Message TLV (Complex TLV).
+type IRA struct {
+	TLV
+}
+
+// Name returns the type name of a IRA Message TLV.
+func (t *IRA) Name() string { return "IRA" }
+
+// IsComplex returns whether a IRA Message TLV is Complex or not.
+func (t *IRA) IsComplex() bool {
+	return true
+}
+
+// A REX is a REX Message TLV (Complex TLV).
+type REX struct {
+	TLV
+}
+
+// Name returns the type name of a REX Message TLV.
+func (t *REX) Name() string { return "REX" }
+
+// IsComplex returns whether a REX Message TLV is Complex or not.
+func (t *REX) IsComplex() bool {
+	return true
+}
+
+// A NTF is a Notify Message TLV (Complex TLV).
 type NTF struct {
 	TLV
 }
 
-// Name returns the type name of a NTF Message TLV.
-func (t *NTF) Name() string { return "NTF" }
+// Name returns the type name of a Notify Message TLV.
+func (t *NTF) Name() string { return "Notify" }
 
-// IsComplex returns whether a NTF Message TLV is Complex or not.
+// IsComplex returns whether a Notify Message TLV is Complex or not.
 func (t *NTF) IsComplex() bool {
+	return true
+}
+
+// A Seq is a Sequence TLV (Complex TLV).
+type Seq struct {
+	TLV
+}
+
+// Name returns the type name of a Sequence TLV.
+func (t *Seq) Name() string { return "Sequence" }
+
+// IsComplex returns whether a Sequence TLV is Complex or not.
+func (t *Seq) IsComplex() bool {
 	return true
 }
 
@@ -110,17 +147,56 @@ type SeqNmr struct {
 // Name returns the type name of a NTF Message TLV.
 func (t *SeqNmr) Name() string { return "SequenceNumber" }
 
-// IsComplex returns whether a SequenceNumber TLV is Complex or not.
-func (t *SeqNmr) IsComplex() bool {
-	return false
-}
-
 // Val returns the value a SequenceNumber TLV carries.
 func (t *SeqNmr) Val() interface{} {
 	if len(t.Value) != 2 {
 		return fmt.Errorf("unexpected lenght: %v, want: 2", len(t.Value))
 	}
 	return binary.BigEndian.Uint16(t.Value)
+}
+
+// IsComplex returns whether a SequenceNumber TLV is Complex or not.
+func (t *SeqNmr) IsComplex() bool {
+	return false
+}
+
+// A Oper is a Operation TLV.
+type Oper struct {
+	TLV
+}
+
+// Name returns the type name of a Operation TLV.
+func (t *Oper) Name() string { return "Operation" }
+
+// Val returns the value a Operation TLV carries.
+func (t *Oper) Val() interface{} {
+	if len(t.Value) != 1 {
+		return fmt.Errorf("unexpected lenght: %v, want: 1", len(t.Value))
+	}
+	switch int(t.Value[0]) {
+	case 1:
+		return "Read"
+	case 2:
+		return "Write"
+	case 3:
+		return "Delete"
+	case 4:
+		return "ReadResponse"
+	case 5:
+		return "WriteResponse"
+	case 6:
+		return "DeleteResponse"
+	case 7:
+		return "AllocateWrite"
+	case 8:
+		return "AllocateWriteResponse"
+	}
+	return "Unknown Operation"
+}
+
+// IsComplex returns whether a Operation TLV is Complex or not.
+func (t *Oper) IsComplex() bool {
+	return false
 }
 
 // A RpdCap is a RpdCapabilities TLV (Complex TLV).
@@ -133,6 +209,19 @@ func (t *RpdCap) Name() string { return "RpdCapabilities" }
 
 // IsComplex returns whether a RpdCapabilities TLV is Complex or not.
 func (t *RpdCap) IsComplex() bool {
+	return true
+}
+
+// A GenrlNtf is a GeneralNotification TLV (Complex TLV).
+type GenrlNtf struct {
+	TLV
+}
+
+// Name returns the type name of a GeneralNotification TLV.
+func (t *GenrlNtf) Name() string { return "GeneralNotification" }
+
+// IsComplex returns whether a GeneralNotification TLV is Complex or not.
+func (t *GenrlNtf) IsComplex() bool {
 	return true
 }
 
@@ -157,12 +246,22 @@ func parseTLVs(b []byte) ([]RCP, error) {
 		// This will be problematic for recursive calls as TLV numbers
 		// are re-used. Fix with [1]
 		switch ty {
+		case 1:
+			tlv = new(IRA)
+		case 2:
+			tlv = new(REX)
 		case 3:
 			tlv = new(NTF)
+		case 9:
+			tlv = new(Seq)
 		case 10:
 			tlv = new(SeqNmr)
+		case 11:
+			tlv = new(Oper)
 		case 50:
 			tlv = new(RpdCap)
+		case 86:
+			tlv = new(GenrlNtf)
 		default:
 			tlv = new(TLV)
 		}
@@ -195,20 +294,6 @@ func parseTLVs(b []byte) ([]RCP, error) {
 	return tlvs, nil
 
 }
-
-// RCPType is a RCP TLV Type.
-type RCPType uint8
-
-// RCP TLV Types
-const (
-	IRA       RCPType = 1   // Complex TLV - IRA Message
-	REX       RCPType = 2   // Complex TLV - REX Message
-	Seq       RCPType = 9   // Complex TLV - Sequence
-	Oper      RCPType = 11  // UnsignedByte - Operation
-	RfPortSel RCPType = 13  // Complex TLV - RfPortSelector
-	GnrlNtf   RCPType = 86  // Complex TLV - GeneralNotification
-	RpdInfo   RCPType = 100 // Complex TLV - RpdInfo
-)
 
 // General purpose TLVs
 //

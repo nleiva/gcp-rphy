@@ -35,9 +35,9 @@ func (p *NotifyReq) Print() string {
 	for _, t := range tlvs {
 		switch t.IsComplex() {
 		case true:
-			data = data + fmt.Sprintf("        Type: %s, Length: %v ->\n", t.Name(), t.Len())
+			data = data + fmt.Sprintf("        Type: %s, \tLength: %v ->\n", t.Name(), t.Len())
 		default:
-			data = data + fmt.Sprintf("        Type: %s, Length: %v, Value: %v\n", t.Name(), t.Len(), t.Val())
+			data = data + fmt.Sprintf("        Type: %s, \tLength: %v, \tValue: %v\n", t.Name(), t.Len(), t.Val())
 		}
 	}
 	return fmt.Sprintf(`
