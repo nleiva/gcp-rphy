@@ -84,7 +84,63 @@ func (t *TLV) IsComplex() bool {
 }
 
 func (t *TLV) parseTLVs(b []byte) ([]RCP, error) {
-	return parseTLVs(b)
+	var tlvs []RCP
+	for i := 0; len(b[i:]) != 0; {
+		l, err := boundsChk(i, b)
+		if err != nil {
+			return nil, err
+		}
+
+		tlv := t.newTLV(b[i])
+
+		// Unmarshal at the current offset, up to the expected length.
+		if err := tlv.unmarshal(b[i : i+3+l]); err != nil {
+			return nil, err
+		}
+
+		switch {
+		// Complex TLV
+		case l > 3 && tlv.IsComplex():
+			// Recursive call
+			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
+			if err != nil {
+				return nil, err
+			}
+			tlvs = append(tlvs, tlv)
+			tlvs = append(tlvs, rectlv...)
+		case l < 3 || !tlv.IsComplex():
+			tlvs = append(tlvs, tlv)
+		default:
+			fmt.Printf("We really shouldn't get here: TLV Type %s\n", tlv.Name())
+		}
+		// Advance to the next TLV's type field.
+		i += (l + 3)
+	}
+
+	return tlvs, nil
+}
+
+func (t *TLV) newTLV(b byte) RCP {
+	switch int(b) {
+	case 1:
+		return new(IRA)
+	case 2:
+		return new(REX)
+	case 3:
+		return new(NTF)
+	case 9:
+		return new(Seq)
+	case 10:
+		return new(SeqNmr)
+	case 11:
+		return new(Oper)
+	case 50:
+		return new(RpdCap)
+	case 86:
+		return new(GenrlNtf)
+	default:
+		return new(TLV)
+	}
 }
 
 // A IRA is a IRA Message TLV (Complex TLV).
@@ -199,19 +255,6 @@ func (t *Oper) IsComplex() bool {
 	return false
 }
 
-// A RpdCap is a RpdCapabilities TLV (Complex TLV).
-type RpdCap struct {
-	TLV
-}
-
-// Name returns the type name of a NTF Message TLV.
-func (t *RpdCap) Name() string { return "RpdCapabilities" }
-
-// IsComplex returns whether a RpdCapabilities TLV is Complex or not.
-func (t *RpdCap) IsComplex() bool {
-	return true
-}
-
 // A GenrlNtf is a GeneralNotification TLV (Complex TLV).
 type GenrlNtf struct {
 	TLV
@@ -225,74 +268,23 @@ func (t *GenrlNtf) IsComplex() bool {
 	return true
 }
 
-// parseTLVs ...
+// parseTLVs parses Top Level and General Purpose TLVs.
 func parseTLVs(b []byte) ([]RCP, error) {
-	var tlvs []RCP
-	for i := 0; len(b[i:]) != 0; {
-		// Three bytes: TLV type and TLV length.
-		if len(b[i:]) < 3 {
-			return nil, ErrUnexpectedEOF
-		}
+	var t TLV
+	return t.parseTLVs(b)
+}
 
-		ty := int(b[i])
-		l := int(binary.BigEndian.Uint16(b[i+1 : i+3]))
-
-		// Verify that we won't advance beyond the end of the byte slice.
-		if l > len(b[i+3:]) {
-			return nil, ErrUnexpectedEOF
-		}
-		var tlv RCP
-		// Select Type of TLV depending on ty
-		// This will be problematic for recursive calls as TLV numbers
-		// are re-used. Fix with [1]
-		switch ty {
-		case 1:
-			tlv = new(IRA)
-		case 2:
-			tlv = new(REX)
-		case 3:
-			tlv = new(NTF)
-		case 9:
-			tlv = new(Seq)
-		case 10:
-			tlv = new(SeqNmr)
-		case 11:
-			tlv = new(Oper)
-		case 50:
-			tlv = new(RpdCap)
-		case 86:
-			tlv = new(GenrlNtf)
-		default:
-			tlv = new(TLV)
-		}
-
-		// Unmarshal at the current offset, up to the expected length.
-		if err := tlv.unmarshal(b[i : i+3+l]); err != nil {
-			return nil, err
-		}
-
-		switch {
-		// Complex TLV
-		case l > 3 && tlv.IsComplex():
-			// Recursive call
-			// Will need to create parseTLV per type. [1]
-			rectlv, err := parseTLVs(b[i+3 : i+3+l])
-			if err != nil {
-				return nil, err
-			}
-			tlvs = append(tlvs, tlv)
-			tlvs = append(tlvs, rectlv...)
-		case l < 3 || !tlv.IsComplex():
-			tlvs = append(tlvs, tlv)
-		default:
-			fmt.Printf("We really shouldn't get here: TLV Type %s\n", tlv.Name())
-		}
-		// Advance to the next TLV's type field.
-		i += (l + 3)
+func boundsChk(i int, b []byte) (int, error) {
+	// Three bytes: TLV type and TLV length.
+	if len(b[i:]) < 3 {
+		return 0, ErrUnexpectedEOF
 	}
-
-	return tlvs, nil
-
+	l := int(binary.BigEndian.Uint16(b[i+1 : i+3]))
+	// Verify that we won't advance beyond the end of the byte slice.
+	if l > len(b[i+3:]) {
+		return 0, ErrUnexpectedEOF
+	}
+	return l, nil
 }
 
 // General purpose TLVs
