@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 // A TLV represents a RCP TLV message.
@@ -260,6 +261,14 @@ func stringVal(b []byte) string {
 	return string(b)
 }
 
+func u8Val(b []byte) interface{} {
+	// TODO: Should I stick to uint8 and return "0" if there is an error?
+	if len(b) != 1 {
+		return fmt.Sprintf("unexpected lenght: %v, want: 1", len(b))
+	}
+	return uint8(b[0])
+}
+
 func u16Val(b []byte) interface{} {
 	// TODO: Should I stick to uint16 and return "0" if there is an error?
 	if len(b) != 2 {
@@ -274,6 +283,18 @@ func u32Val(b []byte) interface{} {
 		return fmt.Sprintf("unexpected lenght: %v, want: 4", len(b))
 	}
 	return binary.BigEndian.Uint32(b)
+}
+
+func timeVal(b []byte) interface{} {
+	// TODO: Should I stick to uint32 and return "0" if there is an error?
+	if len(b) != 4 {
+		return fmt.Sprintf("unexpected lenght: %v, want: 4", len(b))
+	}
+	t := binary.BigEndian.Uint32(b)
+	if t == 0 {
+		return "0"
+	}
+	return time.Unix(int64(t), 0)
 }
 
 // General purpose TLVs
