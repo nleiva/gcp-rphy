@@ -70,6 +70,8 @@ func (t *RpdIdf) newTLV(b byte) RCP {
 	switch int(b) {
 	case 1:
 		return new(VendorName)
+	case 2:
+		return new(VendorID)
 	case 3:
 		return new(ModelNbr)
 	case 6:
@@ -127,6 +129,20 @@ func (t *VendorName) IsComplex() bool { return false }
 
 // Val returns the value a VendorName TLV carries.
 func (t *VendorName) Val() interface{} { return stringVal(t.Value) }
+
+// A VendorID is a VendorId TLV.
+type VendorID struct {
+	TLV
+}
+
+// Name returns the type name of a VendorId TLV.
+func (t *VendorID) Name() string { return "VendorId" }
+
+// IsComplex returns whether a VendorId TLV is Complex or not.
+func (t *VendorID) IsComplex() bool { return false }
+
+// Val returns the value a VendorId TLV carries.
+func (t *VendorID) Val() interface{} { return u16Val(t.Value) }
 
 // A ModelNbr is a ModelNumber TLV.
 type ModelNbr struct {
