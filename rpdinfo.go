@@ -44,19 +44,15 @@ func (t *RpdInfo) parseTLVs(b []byte) ([]RCP, error) {
 		}
 
 		switch {
-		// Complex TLV
 		case l > 3 && tlv.IsComplex():
-			// Recursive call
 			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
 			if err != nil {
 				return nil, err
 			}
 			tlvs = append(tlvs, tlv)
 			tlvs = append(tlvs, rectlv...)
-		case l < 3 || !tlv.IsComplex():
+		case l <= 3 || !tlv.IsComplex():
 			tlvs = append(tlvs, tlv)
-		default:
-			fmt.Printf("We really shouldn't get here: TLV Type %s\n", tlv.Name())
 		}
 		// Advance to the next TLV's type field.
 		i += (l + 3)
@@ -110,12 +106,8 @@ func (t *IfEnet) parseTLVs(b []byte) ([]RCP, error) {
 	for i := 0; len(b[i:]) != 0; {
 		l, err := boundsChk(i, b)
 		if err != nil {
-			// DEBUG
 			return nil, err
-			// fmt.Printf("ERROR IfEnet -> i: %d, type: %v", i, b[i])
-			// return nil, fmt.Errorf("ERROR -> i: %d, type: %v", i, b[i])
 		}
-		// fmt.Printf("DEBUG IfEnet -> i: %d, type: %v, length: %d\n", i, b[i], l)
 		tlv := t.newTLV(b[i])
 
 		// Unmarshal at the current offset, up to the expected length.
@@ -124,19 +116,15 @@ func (t *IfEnet) parseTLVs(b []byte) ([]RCP, error) {
 		}
 
 		switch {
-		// Complex TLV
 		case l > 3 && tlv.IsComplex():
-			// Recursive call
 			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
 			if err != nil {
 				return nil, err
 			}
 			tlvs = append(tlvs, tlv)
 			tlvs = append(tlvs, rectlv...)
-		case l < 3 || !tlv.IsComplex():
+		case l <= 3 || !tlv.IsComplex():
 			tlvs = append(tlvs, tlv)
-		default:
-			fmt.Printf("We really shouldn't get here: TLV Type %s\n", tlv.Name())
 		}
 		// Advance to the next TLV's type field.
 		i += (l + 3)
@@ -188,12 +176,8 @@ func (t *IPAddress) parseTLVs(b []byte) ([]RCP, error) {
 	for i := 0; len(b[i:]) != 0; {
 		l, err := boundsChk(i, b)
 		if err != nil {
-			// DEBUG
 			return nil, err
-			// fmt.Printf("ERROR IPAddress -> i: %d, type: %v", i, b[i])
-			// return nil, fmt.Errorf("ERROR -> i: %d, type: %v", i, b[i])
 		}
-		// fmt.Printf("DEBUG IPAddress -> i: %d, type: %v, length: %d\n", i, b[i], l)
 		tlv := t.newTLV(b[i])
 
 		// Unmarshal at the current offset, up to the expected length.
@@ -202,19 +186,15 @@ func (t *IPAddress) parseTLVs(b []byte) ([]RCP, error) {
 		}
 
 		switch {
-		// Complex TLV
 		case l > 3 && tlv.IsComplex():
-			// Recursive call
 			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
 			if err != nil {
 				return nil, err
 			}
 			tlvs = append(tlvs, tlv)
 			tlvs = append(tlvs, rectlv...)
-		case l < 3 || !tlv.IsComplex():
+		case l <= 3 || !tlv.IsComplex():
 			tlvs = append(tlvs, tlv)
-		default:
-			fmt.Printf("We really shouldn't get here: TLV Type %s\n", tlv.Name())
 		}
 		// Advance to the next TLV's type field.
 		i += (l + 3)

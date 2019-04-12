@@ -95,7 +95,6 @@ func (t *TLV) parseTLVs(b []byte) ([]RCP, error) {
 		}
 
 		switch {
-		// Complex TLV
 		case l > 3 && tlv.IsComplex():
 			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
 			if err != nil {
@@ -105,8 +104,6 @@ func (t *TLV) parseTLVs(b []byte) ([]RCP, error) {
 			tlvs = append(tlvs, rectlv...)
 		case l <= 3 || !tlv.IsComplex():
 			tlvs = append(tlvs, tlv)
-		default:
-			fmt.Printf("We really shouldn't get here: TLV Type %s\n", tlv.Name())
 		}
 		// Advance to the next TLV's type field.
 		i += (l + 3)
@@ -343,10 +340,3 @@ func timeVal(b []byte) interface{} {
 //   UepiControl Complex TLV 4
 //   LldpConfig Complex TLV 6
 // ...
-//
-//
-//
-//
-//
-//
-//
