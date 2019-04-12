@@ -40,6 +40,7 @@ Cable related:
 - [Generic Control Plane Specification](https://specification-search.cablelabs.com/CM-SP-GCP)
 - [MAC and Upper Layer Protocols Interface Specification](https://specification-search.cablelabs.com/CM-SP-MULPIv3.1)
 - [DOCSIS 3.1 Physical Layer Specification](https://specification-search.cablelabs.com/CM-SP-PHYv3.1)
+- [Remote PHY OSS Interface Specification](https://specification-search.cablelabs.com/CM-SP-R-OSSI)
 
 Go Network connections:
 

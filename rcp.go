@@ -22,7 +22,7 @@ type RCP interface {
 	IsComplex() bool
 	marshal() ([]byte, error)
 	unmarshal(b []byte) error
-	// The output of parseTLVs could change to adapt to requirements.
+	// The output of parseTLVs could change to adapt to requirements (type struct?).
 	parseTLVs(b []byte) ([]RCP, error)
 }
 
@@ -38,9 +38,7 @@ func (t *TLV) Name() string { return strconv.Itoa(int(t.Type)) }
 func (t *TLV) Len() uint16 { return t.Length }
 
 // Val returns the value the TLV carries.
-func (t *TLV) Val() interface{} {
-	return t.Value
-}
+func (t *TLV) Val() interface{} { return t.Value }
 
 func (t *TLV) marshal() ([]byte, error) {
 	l := int(t.Length)
@@ -78,10 +76,7 @@ func (t *TLV) unmarshal(b []byte) error {
 }
 
 // IsComplex returns whether the TLV is Complex or not.
-func (t *TLV) IsComplex() bool {
-	return false
-
-}
+func (t *TLV) IsComplex() bool { return false }
 
 func (t *TLV) parseTLVs(b []byte) ([]RCP, error) {
 	var tlvs []RCP
@@ -101,14 +96,13 @@ func (t *TLV) parseTLVs(b []byte) ([]RCP, error) {
 		switch {
 		// Complex TLV
 		case l > 3 && tlv.IsComplex():
-			// Recursive call
 			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
 			if err != nil {
 				return nil, err
 			}
 			tlvs = append(tlvs, tlv)
 			tlvs = append(tlvs, rectlv...)
-		case l < 3 || !tlv.IsComplex():
+		case l <= 3 || !tlv.IsComplex():
 			tlvs = append(tlvs, tlv)
 		default:
 			fmt.Printf("We really shouldn't get here: TLV Type %s\n", tlv.Name())
@@ -138,6 +132,8 @@ func (t *TLV) newTLV(b byte) RCP {
 		return new(RpdCap)
 	case 86:
 		return new(GenrlNtf)
+	case 100:
+		return new(RpdInfo)
 	default:
 		return new(TLV)
 	}
@@ -152,9 +148,7 @@ type IRA struct {
 func (t *IRA) Name() string { return "IRA" }
 
 // IsComplex returns whether a IRA Message TLV is Complex or not.
-func (t *IRA) IsComplex() bool {
-	return true
-}
+func (t *IRA) IsComplex() bool { return true }
 
 // A REX is a REX Message TLV (Complex TLV).
 type REX struct {
@@ -165,9 +159,7 @@ type REX struct {
 func (t *REX) Name() string { return "REX" }
 
 // IsComplex returns whether a REX Message TLV is Complex or not.
-func (t *REX) IsComplex() bool {
-	return true
-}
+func (t *REX) IsComplex() bool { return true }
 
 // A NTF is a Notify Message TLV (Complex TLV).
 type NTF struct {
@@ -178,9 +170,7 @@ type NTF struct {
 func (t *NTF) Name() string { return "Notify" }
 
 // IsComplex returns whether a Notify Message TLV is Complex or not.
-func (t *NTF) IsComplex() bool {
-	return true
-}
+func (t *NTF) IsComplex() bool { return true }
 
 // A Seq is a Sequence TLV (Complex TLV).
 type Seq struct {
@@ -191,9 +181,7 @@ type Seq struct {
 func (t *Seq) Name() string { return "Sequence" }
 
 // IsComplex returns whether a Sequence TLV is Complex or not.
-func (t *Seq) IsComplex() bool {
-	return true
-}
+func (t *Seq) IsComplex() bool { return true }
 
 // A SeqNmr is a SequenceNumber TLV.
 type SeqNmr struct {
@@ -204,17 +192,10 @@ type SeqNmr struct {
 func (t *SeqNmr) Name() string { return "SequenceNumber" }
 
 // Val returns the value a SequenceNumber TLV carries.
-func (t *SeqNmr) Val() interface{} {
-	if len(t.Value) != 2 {
-		return fmt.Errorf("unexpected lenght: %v, want: 2", len(t.Value))
-	}
-	return binary.BigEndian.Uint16(t.Value)
-}
+func (t *SeqNmr) Val() interface{} { return u16Val(t.Value) }
 
 // IsComplex returns whether a SequenceNumber TLV is Complex or not.
-func (t *SeqNmr) IsComplex() bool {
-	return false
-}
+func (t *SeqNmr) IsComplex() bool { return false }
 
 // A Oper is a Operation TLV.
 type Oper struct {
@@ -251,22 +232,7 @@ func (t *Oper) Val() interface{} {
 }
 
 // IsComplex returns whether a Operation TLV is Complex or not.
-func (t *Oper) IsComplex() bool {
-	return false
-}
-
-// A GenrlNtf is a GeneralNotification TLV (Complex TLV).
-type GenrlNtf struct {
-	TLV
-}
-
-// Name returns the type name of a GeneralNotification TLV.
-func (t *GenrlNtf) Name() string { return "GeneralNotification" }
-
-// IsComplex returns whether a GeneralNotification TLV is Complex or not.
-func (t *GenrlNtf) IsComplex() bool {
-	return true
-}
+func (t *Oper) IsComplex() bool { return false }
 
 // parseTLVs parses Top Level and General Purpose TLVs.
 func parseTLVs(b []byte) ([]RCP, error) {
@@ -277,14 +243,37 @@ func parseTLVs(b []byte) ([]RCP, error) {
 func boundsChk(i int, b []byte) (int, error) {
 	// Three bytes: TLV type and TLV length.
 	if len(b[i:]) < 3 {
-		return 0, ErrUnexpectedEOF
+		return 0, fmt.Errorf("TLV Length is %d (less than 3). Index: %d, Type: %v", len(b[i:]), i, b[i])
 	}
 	l := int(binary.BigEndian.Uint16(b[i+1 : i+3]))
 	// Verify that we won't advance beyond the end of the byte slice.
 	if l > len(b[i+3:]) {
-		return 0, ErrUnexpectedEOF
+		return 0, fmt.Errorf("TLV Length is greater than bytes in the buffer. Index: %d, Type: %v", i, b[i])
 	}
 	return l, nil
+}
+
+func stringVal(b []byte) string {
+	if len(b) > 255 {
+		return fmt.Sprintf("unexpected lenght: %v, want: 0-255", len(b))
+	}
+	return string(b)
+}
+
+func u16Val(b []byte) interface{} {
+	// TODO: Should I stick to uint16 and return "0" if there is an error?
+	if len(b) != 2 {
+		return fmt.Sprintf("unexpected lenght: %v, want: 2", len(b))
+	}
+	return binary.BigEndian.Uint16(b)
+}
+
+func u32Val(b []byte) interface{} {
+	// TODO: Should I stick to uint32 and return "0" if there is an error?
+	if len(b) != 4 {
+		return fmt.Sprintf("unexpected lenght: %v, want: 4", len(b))
+	}
+	return binary.BigEndian.Uint32(b)
 }
 
 // General purpose TLVs

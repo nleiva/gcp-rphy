@@ -13,9 +13,7 @@ type RpdCap struct {
 func (t *RpdCap) Name() string { return "RpdCapabilities" }
 
 // IsComplex returns whether a RpdCapabilities TLV is Complex or not.
-func (t *RpdCap) IsComplex() bool {
-	return true
-}
+func (t *RpdCap) IsComplex() bool { return true }
 
 func (t *RpdCap) newTLV(b byte) RCP {
 	switch int(b) {
@@ -45,14 +43,13 @@ func (t *RpdCap) parseTLVs(b []byte) ([]RCP, error) {
 		switch {
 		// Complex TLV
 		case l > 3 && tlv.IsComplex():
-			// Recursive call
 			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
 			if err != nil {
 				return nil, err
 			}
 			tlvs = append(tlvs, tlv)
 			tlvs = append(tlvs, rectlv...)
-		case l < 3 || !tlv.IsComplex():
+		case l <= 3 || !tlv.IsComplex():
 			tlvs = append(tlvs, tlv)
 		default:
 			fmt.Printf("We really shouldn't get here: TLV Type %s\n", tlv.Name())
@@ -74,9 +71,8 @@ type RpdIdf struct {
 func (t *RpdIdf) Name() string { return "RpdIdentification" }
 
 // IsComplex returns whether a RpdIdentification TLV is Complex or not.
-func (t *RpdIdf) IsComplex() bool {
-	return true
-}
+func (t *RpdIdf) IsComplex() bool { return true }
+
 func (t *RpdIdf) newTLV(b byte) RCP {
 	switch int(b) {
 	case 1:
@@ -109,15 +105,13 @@ func (t *RpdIdf) parseTLVs(b []byte) ([]RCP, error) {
 		switch {
 		// Complex TLV
 		case l > 3 && tlv.IsComplex():
-			// Recursive call
-			// Will need to create parseTLV per type. [1]
 			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
 			if err != nil {
 				return nil, err
 			}
 			tlvs = append(tlvs, tlv)
 			tlvs = append(tlvs, rectlv...)
-		case l < 3 || !tlv.IsComplex():
+		case l <= 3 || !tlv.IsComplex():
 			tlvs = append(tlvs, tlv)
 		default:
 			fmt.Printf("We really shouldn't get here: TLV Type %s\n", tlv.Name())
@@ -139,17 +133,10 @@ type VendorName struct {
 func (t *VendorName) Name() string { return "VendorName" }
 
 // IsComplex returns whether a VendorName TLV is Complex or not.
-func (t *VendorName) IsComplex() bool {
-	return false
-}
+func (t *VendorName) IsComplex() bool { return false }
 
 // Val returns the value a VendorName TLV carries.
-func (t *VendorName) Val() interface{} {
-	if len(t.Value) > 255 {
-		return fmt.Errorf("unexpected lenght: %v, want: 0-255", len(t.Value))
-	}
-	return string(t.Value)
-}
+func (t *VendorName) Val() interface{} { return stringVal(t.Value) }
 
 // A ModelNbr is a ModelNumber TLV.
 type ModelNbr struct {
@@ -160,17 +147,10 @@ type ModelNbr struct {
 func (t *ModelNbr) Name() string { return "ModelNumber" }
 
 // IsComplex returns whether a ModelNumber TLV is Complex or not.
-func (t *ModelNbr) IsComplex() bool {
-	return false
-}
+func (t *ModelNbr) IsComplex() bool { return false }
 
 // Val returns the value a ModelNumber TLV carries.
-func (t *ModelNbr) Val() interface{} {
-	if len(t.Value) > 255 {
-		return fmt.Errorf("unexpected lenght: %v, want: 0-255", len(t.Value))
-	}
-	return string(t.Value)
-}
+func (t *ModelNbr) Val() interface{} { return stringVal(t.Value) }
 
 // A BootVer is a BootRomVersion TLV.
 type BootVer struct {
@@ -180,15 +160,8 @@ type BootVer struct {
 // Name returns the type name of a BootRomVersion TLV.
 func (t *BootVer) Name() string { return "BootRomVersion" }
 
-// IsComplex returns whether a BootRomVersio TLV is Complex or not.
-func (t *BootVer) IsComplex() bool {
-	return false
-}
+// IsComplex returns whether a BootRomVersion TLV is Complex or not.
+func (t *BootVer) IsComplex() bool { return false }
 
-// Val returns the value a BootRomVersio TLV carries.
-func (t *BootVer) Val() interface{} {
-	if len(t.Value) > 255 {
-		return fmt.Errorf("unexpected lenght: %v, want: 0-255", len(t.Value))
-	}
-	return string(t.Value)
-}
+// Val returns the value a BootRomVersion TLV carries.
+func (t *BootVer) Val() interface{} { return stringVal(t.Value) }
