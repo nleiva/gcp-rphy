@@ -84,6 +84,8 @@ func (t *RpdIdf) newTLV(b byte) RCP {
 		return new(DevDesc)
 	case 8:
 		return new(DevAlias)
+	case 9:
+		return new(SerialNum)
 	default:
 		return new(TLV)
 	}
@@ -235,3 +237,17 @@ func (t *DevAlias) IsComplex() bool { return false }
 
 // Val returns the value a DeviceAlias TLV carries.
 func (t *DevAlias) Val() interface{} { return stringVal(t.Value) }
+
+// A SerialNum is a SerialNumber TLV.
+type SerialNum struct {
+	TLV
+}
+
+// Name returns the type name of a SerialNumber TLV.
+func (t *SerialNum) Name() string { return "SerialNumber" }
+
+// IsComplex returns whether a SerialNumber TLV is Complex or not.
+func (t *SerialNum) IsComplex() bool { return false }
+
+// Val returns the value a SerialNumber TLV carries.
+func (t *SerialNum) Val() interface{} { return stringVal(t.Value) }
