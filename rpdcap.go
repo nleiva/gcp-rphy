@@ -76,8 +76,14 @@ func (t *RpdIdf) newTLV(b byte) RCP {
 		return new(ModelNbr)
 	case 4:
 		return new(DevMacAddr)
+	case 5:
+		return new(CurSwVer)
 	case 6:
 		return new(BootVer)
+	case 7:
+		return new(DevDesc)
+	case 8:
+		return new(DevAlias)
 	default:
 		return new(TLV)
 	}
@@ -174,6 +180,20 @@ func (t *DevMacAddr) IsComplex() bool { return false }
 // Val returns the value a DeviceMacAddress TLV carries.
 func (t *DevMacAddr) Val() interface{} { return macVal(t.Value) }
 
+// A CurSwVer is a CurrentSwVersion TLV.
+type CurSwVer struct {
+	TLV
+}
+
+// Name returns the type name of a CurrentSwVersion TLV.
+func (t *CurSwVer) Name() string { return "CurrentSwVersion" }
+
+// IsComplex returns whether a CurrentSwVersion TLV is Complex or not.
+func (t *CurSwVer) IsComplex() bool { return false }
+
+// Val returns the value a CurrentSwVersion TLV carries.
+func (t *CurSwVer) Val() interface{} { return stringVal(t.Value) }
+
 // A BootVer is a BootRomVersion TLV.
 type BootVer struct {
 	TLV
@@ -187,3 +207,31 @@ func (t *BootVer) IsComplex() bool { return false }
 
 // Val returns the value a BootRomVersion TLV carries.
 func (t *BootVer) Val() interface{} { return stringVal(t.Value) }
+
+// A DevDesc is a DeviceDescription TLV.
+type DevDesc struct {
+	TLV
+}
+
+// Name returns the type name of a DeviceDescription TLV.
+func (t *DevDesc) Name() string { return "DeviceDescription" }
+
+// IsComplex returns whether a DeviceDescription TLV is Complex or not.
+func (t *DevDesc) IsComplex() bool { return false }
+
+// Val returns the value a DeviceDescription TLV carries.
+func (t *DevDesc) Val() interface{} { return stringVal(t.Value) }
+
+// A DevAlias is a DeviceAlias TLV.
+type DevAlias struct {
+	TLV
+}
+
+// Name returns the type name of a DeviceAlias TLV.
+func (t *DevAlias) Name() string { return "DeviceAlias" }
+
+// IsComplex returns whether a DeviceAlias TLV is Complex or not.
+func (t *DevAlias) IsComplex() bool { return false }
+
+// Val returns the value a DeviceAlias TLV carries.
+func (t *DevAlias) Val() interface{} { return stringVal(t.Value) }
