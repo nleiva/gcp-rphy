@@ -211,9 +211,6 @@ type EnPortIdx struct {
 // Name returns the type name of a EnetPortIndex TLV.
 func (t *EnPortIdx) Name() string { return "EnetPortIndex" }
 
-// IsComplex returns whether a EnetPortIndex TLV is Complex or not.
-func (t *EnPortIdx) IsComplex() bool { return false }
-
 // Val returns the value a EnetPortIndex TLV carries.
 func (t *EnPortIdx) Val() interface{} {
 	if len(t.Value) != 1 {
@@ -233,9 +230,6 @@ func (t *IfName) Name() string { return "Name" }
 // Val returns the value a Name TLV carries.
 func (t *IfName) Val() interface{} { return stringVal(t.Value) }
 
-// IsComplex returns whether a Name TLV is Complex or not.
-func (t *IfName) IsComplex() bool { return false }
-
 // A Descr is a Descr TLV.
 type Descr struct {
 	TLV
@@ -246,9 +240,6 @@ func (t *Descr) Name() string { return "Description" }
 
 // Val returns the value a Descr TLV carries.
 func (t *Descr) Val() interface{} { return stringVal(t.Value) }
-
-// IsComplex returns whether a Descr TLV is Complex or not.
-func (t *Descr) IsComplex() bool { return false }
 
 // A Alias is a Alias TLV.
 type Alias struct {
@@ -261,9 +252,6 @@ func (t *Alias) Name() string { return "Alias" }
 // Val returns the value a Alias TLV carries.
 func (t *Alias) Val() interface{} { return stringVal(t.Value) }
 
-// IsComplex returns whether a Alias TLV is Complex or not.
-func (t *Alias) IsComplex() bool { return false }
-
 // A Mtu is a Mtu TLV.
 type Mtu struct {
 	TLV
@@ -275,9 +263,6 @@ func (t *Mtu) Name() string { return "Mtu" }
 // Val returns the value a Mtu TLV carries.
 func (t *Mtu) Val() interface{} { return u32Val(t.Value) }
 
-// IsComplex returns whether a Mtu TLV is Complex or not.
-func (t *Mtu) IsComplex() bool { return false }
-
 // A PhyAddr is a PhysAddress TLV.
 type PhyAddr struct {
 	TLV
@@ -288,9 +273,6 @@ func (t *PhyAddr) Name() string { return "PhysAddress" }
 
 // Val returns the value a PhysAddress TLV carries.
 func (t *PhyAddr) Val() interface{} { return macVal(t.Value) }
-
-// IsComplex returns whether a PhysAddress TLV is Complex or not.
-func (t *PhyAddr) IsComplex() bool { return false }
 
 // A AdmStatus is a AdminStatus TLV.
 type AdmStatus struct {
@@ -316,9 +298,6 @@ func (t *AdmStatus) Val() interface{} {
 		return "Unknown AdminStatus"
 	}
 }
-
-// IsComplex returns whether a AdminStatus TLV is Complex or not.
-func (t *AdmStatus) IsComplex() bool { return false }
 
 // A OperStatus is a OperStatus TLV.
 type OperStatus struct {
@@ -353,9 +332,6 @@ func (t *OperStatus) Val() interface{} {
 	}
 }
 
-// IsComplex returns whether a OperStatus TLV is Complex or not.
-func (t *OperStatus) IsComplex() bool { return false }
-
 // A LastChange is a LastChange TLV.
 type LastChange struct {
 	TLV
@@ -367,9 +343,6 @@ func (t *LastChange) Name() string { return "LastChange" }
 // Val returns the value a LastChange TLV carries.
 func (t *LastChange) Val() interface{} { return timeVal(t.Value) }
 
-// IsComplex returns whether a LastChange TLV is Complex or not.
-func (t *LastChange) IsComplex() bool { return false }
-
 // A HighSpeed is a HighSpeed TLV.
 type HighSpeed struct {
 	TLV
@@ -380,9 +353,6 @@ func (t *HighSpeed) Name() string { return "HighSpeed" }
 
 // Val returns the value a HighSpeed TLV carries.
 func (t *HighSpeed) Val() interface{} { return u32Val(t.Value) }
-
-// IsComplex returns whether a HighSpeed TLV is Complex or not.
-func (t *HighSpeed) IsComplex() bool { return false }
 
 // A AddrType is an AddrType TLV.
 type AddrType struct {
@@ -407,9 +377,6 @@ func (t *AddrType) Val() interface{} {
 	}
 }
 
-// IsComplex returns whether an AddrType TLV is Complex or not.
-func (t *AddrType) IsComplex() bool { return false }
-
 // A IPAddr is an IpAddress TLV.
 type IPAddr struct {
 	TLV
@@ -421,9 +388,6 @@ func (t *IPAddr) Name() string { return "IpAddress" }
 // Val returns the value an IpAddress TLV carries.
 func (t *IPAddr) Val() interface{} { return ipVal(t.Value) }
 
-// IsComplex returns whether an IpAddress TLV is Complex or not.
-func (t *IPAddr) IsComplex() bool { return false }
-
 // A PortIdx is an EnetPortIndex TLV.
 type PortIdx struct {
 	TLV
@@ -434,9 +398,6 @@ func (t *PortIdx) Name() string { return "EnetPortIndex" }
 
 // Val returns the value an EnetPortIndex TLV carries.
 func (t *PortIdx) Val() interface{} { return u8Val(t.Value) }
-
-// IsComplex returns whether an EnetPortIndex TLV is Complex or not.
-func (t *PortIdx) IsComplex() bool { return false }
 
 // A IntType is an Type TLV.
 type IntType struct {
@@ -463,9 +424,6 @@ func (t *IntType) Val() interface{} {
 	}
 }
 
-// IsComplex returns whether a Type TLV is Complex or not.
-func (t *IntType) IsComplex() bool { return false }
-
 // A PrefixLen is a PrefixLen TLV.
 type PrefixLen struct {
 	TLV
@@ -476,9 +434,6 @@ func (t *PrefixLen) Name() string { return "PrefixLen" }
 
 // Val returns the value a PrefixLen TLV carries.
 func (t *PrefixLen) Val() interface{} { return u16Val(t.Value) }
-
-// IsComplex returns whether a PrefixLen TLV is Complex or not.
-func (t *PrefixLen) IsComplex() bool { return false }
 
 // A Origin is an OriginTLV.
 type Origin struct {
@@ -508,9 +463,6 @@ func (t *Origin) Val() interface{} {
 		return "Unknown Origin"
 	}
 }
-
-// IsComplex returns whether an Origin TLV is Complex or not.
-func (t *Origin) IsComplex() bool { return false }
 
 // An IntStatus is a Status TLV.
 type IntStatus struct {
@@ -547,9 +499,6 @@ func (t *IntStatus) Val() interface{} {
 	}
 }
 
-// IsComplex returns whether a Status TLV is Complex or not.
-func (t *IntStatus) IsComplex() bool { return false }
-
 // A Created is a Created TLV.
 type Created struct {
 	TLV
@@ -561,9 +510,6 @@ func (t *Created) Name() string { return "Created" }
 // Val returns the value a Created TLV carries.
 func (t *Created) Val() interface{} { return timeVal(t.Value) }
 
-// IsComplex returns whether a Created TLV is Complex or not.
-func (t *Created) IsComplex() bool { return false }
-
 // A LastChanged is a LastChanged TLV.
 type LastChanged struct {
 	TLV
@@ -574,6 +520,3 @@ func (t *LastChanged) Name() string { return "LastChanged" }
 
 // Val returns the value a LastChanged TLV carries.
 func (t *LastChanged) Val() interface{} { return timeVal(t.Value) }
-
-// IsComplex returns whether a LastChanged TLV is Complex or not.
-func (t *LastChanged) IsComplex() bool { return false }

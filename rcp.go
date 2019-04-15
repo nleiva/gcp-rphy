@@ -193,9 +193,6 @@ func (t *SeqNmr) Name() string { return "SequenceNumber" }
 // Val returns the value a SequenceNumber TLV carries.
 func (t *SeqNmr) Val() interface{} { return u16Val(t.Value) }
 
-// IsComplex returns whether a SequenceNumber TLV is Complex or not.
-func (t *SeqNmr) IsComplex() bool { return false }
-
 // A Oper is a Operation TLV.
 type Oper struct {
 	TLV
@@ -229,9 +226,6 @@ func (t *Oper) Val() interface{} {
 	}
 	return "Unknown Operation"
 }
-
-// IsComplex returns whether a Operation TLV is Complex or not.
-func (t *Oper) IsComplex() bool { return false }
 
 // parseTLVs parses Top Level and General Purpose TLVs.
 func parseTLVs(b []byte) ([]RCP, error) {

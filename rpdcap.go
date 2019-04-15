@@ -134,9 +134,6 @@ type VendorName struct {
 // Name returns the type name of a VendorName TLV.
 func (t *VendorName) Name() string { return "VendorName" }
 
-// IsComplex returns whether a VendorName TLV is Complex or not.
-func (t *VendorName) IsComplex() bool { return false }
-
 // Val returns the value a VendorName TLV carries.
 func (t *VendorName) Val() interface{} { return stringVal(t.Value) }
 
@@ -147,9 +144,6 @@ type VendorID struct {
 
 // Name returns the type name of a VendorId TLV.
 func (t *VendorID) Name() string { return "VendorId" }
-
-// IsComplex returns whether a VendorId TLV is Complex or not.
-func (t *VendorID) IsComplex() bool { return false }
 
 // Val returns the value a VendorId TLV carries.
 func (t *VendorID) Val() interface{} { return u16Val(t.Value) }
@@ -162,9 +156,6 @@ type ModelNbr struct {
 // Name returns the type name of a ModelNumber TLV.
 func (t *ModelNbr) Name() string { return "ModelNumber" }
 
-// IsComplex returns whether a ModelNumber TLV is Complex or not.
-func (t *ModelNbr) IsComplex() bool { return false }
-
 // Val returns the value a ModelNumber TLV carries.
 func (t *ModelNbr) Val() interface{} { return stringVal(t.Value) }
 
@@ -175,9 +166,6 @@ type DevMacAddr struct {
 
 // Name returns the type name of a DeviceMacAddress TLV.
 func (t *DevMacAddr) Name() string { return "DeviceMacAddress" }
-
-// IsComplex returns whether a DeviceMacAddress TLV is Complex or not.
-func (t *DevMacAddr) IsComplex() bool { return false }
 
 // Val returns the value a DeviceMacAddress TLV carries.
 func (t *DevMacAddr) Val() interface{} { return macVal(t.Value) }
@@ -190,9 +178,6 @@ type CurSwVer struct {
 // Name returns the type name of a CurrentSwVersion TLV.
 func (t *CurSwVer) Name() string { return "CurrentSwVersion" }
 
-// IsComplex returns whether a CurrentSwVersion TLV is Complex or not.
-func (t *CurSwVer) IsComplex() bool { return false }
-
 // Val returns the value a CurrentSwVersion TLV carries.
 func (t *CurSwVer) Val() interface{} { return stringVal(t.Value) }
 
@@ -203,9 +188,6 @@ type BootVer struct {
 
 // Name returns the type name of a BootRomVersion TLV.
 func (t *BootVer) Name() string { return "BootRomVersion" }
-
-// IsComplex returns whether a BootRomVersion TLV is Complex or not.
-func (t *BootVer) IsComplex() bool { return false }
 
 // Val returns the value a BootRomVersion TLV carries.
 func (t *BootVer) Val() interface{} { return stringVal(t.Value) }
@@ -218,9 +200,6 @@ type DevDesc struct {
 // Name returns the type name of a DeviceDescription TLV.
 func (t *DevDesc) Name() string { return "DeviceDescription" }
 
-// IsComplex returns whether a DeviceDescription TLV is Complex or not.
-func (t *DevDesc) IsComplex() bool { return false }
-
 // Val returns the value a DeviceDescription TLV carries.
 func (t *DevDesc) Val() interface{} { return stringVal(t.Value) }
 
@@ -232,9 +211,6 @@ type DevAlias struct {
 // Name returns the type name of a DeviceAlias TLV.
 func (t *DevAlias) Name() string { return "DeviceAlias" }
 
-// IsComplex returns whether a DeviceAlias TLV is Complex or not.
-func (t *DevAlias) IsComplex() bool { return false }
-
 // Val returns the value a DeviceAlias TLV carries.
 func (t *DevAlias) Val() interface{} { return stringVal(t.Value) }
 
@@ -245,9 +221,6 @@ type SerialNum struct {
 
 // Name returns the type name of a SerialNumber TLV.
 func (t *SerialNum) Name() string { return "SerialNumber" }
-
-// IsComplex returns whether a SerialNumber TLV is Complex or not.
-func (t *SerialNum) IsComplex() bool { return false }
 
 // Val returns the value a SerialNumber TLV carries.
 func (t *SerialNum) Val() interface{} { return stringVal(t.Value) }
