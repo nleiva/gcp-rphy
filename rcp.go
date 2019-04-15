@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"net"
 	"strconv"
 	"time"
 )
@@ -292,6 +293,21 @@ func timeVal(b []byte) interface{} {
 		return "0"
 	}
 	return time.Unix(int64(t), 0)
+}
+
+func macVal(b []byte) string {
+	if len(b) != 6 {
+		return fmt.Sprintf("unexpected lenght: %v, want: 6", len(b))
+	}
+	return net.HardwareAddr(b).String()
+}
+
+func ipVal(b []byte) string {
+	l := len(b)
+	if l != 4 && l != 16 {
+		return fmt.Sprintf("unexpected lenght: %v, want: 4 or 16", l)
+	}
+	return net.IP(b).String()
 }
 
 // General purpose TLVs

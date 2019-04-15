@@ -1,10 +1,5 @@
 package gcp
 
-import (
-	"fmt"
-	"net"
-)
-
 // A RpdCap is a RpdCapabilities TLV (Complex TLV).
 type RpdCap struct {
 	TLV
@@ -177,12 +172,7 @@ func (t *DevMacAddr) Name() string { return "DeviceMacAddress" }
 func (t *DevMacAddr) IsComplex() bool { return false }
 
 // Val returns the value a DeviceMacAddress TLV carries.
-func (t *DevMacAddr) Val() interface{} {
-	if len(t.Value) != 6 {
-		return fmt.Sprintf("unexpected lenght: %v, want: 6", len(t.Value))
-	}
-	return net.HardwareAddr(t.Value).String()
-}
+func (t *DevMacAddr) Val() interface{} { return macVal(t.Value) }
 
 // A BootVer is a BootRomVersion TLV.
 type BootVer struct {

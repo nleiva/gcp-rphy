@@ -2,7 +2,6 @@ package gcp
 
 import (
 	"fmt"
-	"net"
 )
 
 // A RpdInfo is a RpdInfo TLV (Complex TLV).
@@ -288,12 +287,7 @@ type PhyAddr struct {
 func (t *PhyAddr) Name() string { return "PhysAddress" }
 
 // Val returns the value a PhysAddress TLV carries.
-func (t *PhyAddr) Val() interface{} {
-	if len(t.Value) != 6 {
-		return fmt.Sprintf("unexpected lenght: %v, want: 6", len(t.Value))
-	}
-	return net.HardwareAddr(t.Value).String()
-}
+func (t *PhyAddr) Val() interface{} { return macVal(t.Value) }
 
 // IsComplex returns whether a PhysAddress TLV is Complex or not.
 func (t *PhyAddr) IsComplex() bool { return false }
@@ -425,13 +419,7 @@ type IPAddr struct {
 func (t *IPAddr) Name() string { return "IpAddress" }
 
 // Val returns the value an IpAddress TLV carries.
-func (t *IPAddr) Val() interface{} {
-	l := len(t.Value)
-	if l != 4 && l != 16 {
-		return fmt.Sprintf("unexpected lenght: %v, want: 6", l)
-	}
-	return net.IP(t.Value).String()
-}
+func (t *IPAddr) Val() interface{} { return ipVal(t.Value) }
 
 // IsComplex returns whether an IpAddress TLV is Complex or not.
 func (t *IPAddr) IsComplex() bool { return false }
