@@ -29,9 +29,9 @@ func (p *NotifyReq) Print() string {
 		return ""
 	}
 	var t TLV
-	g := new(GCP)
-	g.NTF = &dSeq{}
-	t.parentMsg = g
+	//g := new(GCP)
+	// g.NTF = &dSeq{}
+	//t.parentMsg = g
 
 	tlvs, err := t.parseTLVs(p.EvntData)
 	if err != nil {
@@ -48,7 +48,7 @@ func (p *NotifyReq) Print() string {
 			debug = debug + fmt.Sprintf("        Type: %s, \tLength: %v, \tValue: %v\n", t.Name(), t.Len(), t.Val())
 		}
 	}
-	js, _ := json.MarshalIndent(g, "", "  ")
+	js, _ := json.MarshalIndent(t.parentMsg, "", "  ")
 	data := "\n" + fmt.Sprintf("%s\n", js)
 	return fmt.Sprintf(`
     Transaction ID: %d

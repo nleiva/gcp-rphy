@@ -83,6 +83,9 @@ func (t *TLV) IsComplex() bool { return false }
 
 func (t *TLV) parseTLVs(b []byte) ([]RCP, error) {
 	var tlvs []RCP
+	// Create Message structure for Top Level TLV. Could potentially
+	// clean up this value for any TLV that parses as default. Be careful.
+	t.parentMsg = new(GCP)
 	for i := 0; len(b[i:]) != 0; {
 		l, err := boundsChk(i, b)
 		if err != nil {
@@ -119,45 +122,46 @@ func (t *TLV) newTLV(b byte) RCP {
 	case 1:
 		r := new(IRA)
 		r.parentMsg = t.parentMsg
+		r.parentMsg.IRA = &dSeq{}
 		return r
 	case 2:
 		r := new(REX)
 		r.parentMsg = t.parentMsg
+		r.parentMsg.REX = &dSeq{}
 		return r
 	case 3:
 		r := new(NTF)
 		r.parentMsg = t.parentMsg
+		r.parentMsg.NTF = &dSeq{}
 		return r
-	case 9:
-		r := new(Seq)
-		r.parentMsg = t.parentMsg
-		return r
-	case 10:
-		r := new(SeqNmr)
-		r.parentMsg = t.parentMsg
-		return r
-	case 11:
-		r := new(Oper)
-		r.parentMsg = t.parentMsg
-		return r
-	case 50:
-		r := new(RpdCap)
-		r.parentMsg = t.parentMsg
-		return r
-	case 86:
-		r := new(GenrlNtf)
-		r.parentMsg = t.parentMsg
-		return r
-	case 100:
-		r := new(RpdInfo)
-		r.parentMsg = t.parentMsg
-		return r
+	// case 9:
+	// 	r := new(Seq)
+	// 	r.parentMsg = t.parentMsg
+	// 	return r
+	// case 10:
+	// 	r := new(SeqNmr)
+	// 	r.parentMsg = t.parentMsg
+	// 	return r
+	// case 11:
+	// 	r := new(Oper)
+	// 	r.parentMsg = t.parentMsg
+	// 	return r
+	// case 50:
+	// 	r := new(RpdCap)
+	// 	r.parentMsg = t.parentMsg
+	// 	return r
+	// case 86:
+	// 	r := new(GenrlNtf)
+	// 	r.parentMsg = t.parentMsg
+	// 	return r
+	// case 100:
+	// 	r := new(RpdInfo)
+	// 	r.parentMsg = t.parentMsg
+	// 	return r
 	default:
-		r := new(TLV)
-		r.parentMsg = t.parentMsg
-		return r
+		fmt.Printf("RCP Top Level TLVs type: %d not supported", int(b))
+		return nil
 	}
-
 }
 
 // A IRA is a IRA Message TLV (Complex TLV).
@@ -171,6 +175,53 @@ func (t *IRA) Name() string { return "IRA" }
 // IsComplex returns whether a IRA Message TLV is Complex or not.
 func (t *IRA) IsComplex() bool { return true }
 
+func (t *IRA) parseTLVs(b []byte) ([]RCP, error) {
+	var tlvs []RCP
+	for i := 0; len(b[i:]) != 0; {
+		l, err := boundsChk(i, b)
+		if err != nil {
+			return nil, err
+		}
+
+		tlv := t.newTLV(b[i])
+
+		// Unmarshal at the current offset, up to the expected length.
+		if err := tlv.unmarshal(b[i : i+3+l]); err != nil {
+			return nil, err
+		}
+
+		switch {
+		case l > 3 && tlv.IsComplex():
+			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
+			if err != nil {
+				return nil, err
+			}
+			tlvs = append(tlvs, tlv)
+			tlvs = append(tlvs, rectlv...)
+		case l <= 3 || !tlv.IsComplex():
+			tlvs = append(tlvs, tlv)
+		}
+		// Advance to the next TLV's type field.
+		i += (l + 3)
+	}
+
+	return tlvs, nil
+}
+
+func (t *IRA) newTLV(b byte) RCP {
+	switch int(b) {
+	case 9:
+		r := new(Seq)
+		r.index = 1
+		r.parentMsg = t.parentMsg
+		return r
+	default:
+		r := new(TLV)
+		r.parentMsg = t.parentMsg
+		return r
+	}
+}
+
 // A REX is a REX Message TLV (Complex TLV).
 type REX struct {
 	TLV
@@ -181,6 +232,53 @@ func (t *REX) Name() string { return "REX" }
 
 // IsComplex returns whether a REX Message TLV is Complex or not.
 func (t *REX) IsComplex() bool { return true }
+
+func (t *REX) parseTLVs(b []byte) ([]RCP, error) {
+	var tlvs []RCP
+	for i := 0; len(b[i:]) != 0; {
+		l, err := boundsChk(i, b)
+		if err != nil {
+			return nil, err
+		}
+
+		tlv := t.newTLV(b[i])
+
+		// Unmarshal at the current offset, up to the expected length.
+		if err := tlv.unmarshal(b[i : i+3+l]); err != nil {
+			return nil, err
+		}
+
+		switch {
+		case l > 3 && tlv.IsComplex():
+			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
+			if err != nil {
+				return nil, err
+			}
+			tlvs = append(tlvs, tlv)
+			tlvs = append(tlvs, rectlv...)
+		case l <= 3 || !tlv.IsComplex():
+			tlvs = append(tlvs, tlv)
+		}
+		// Advance to the next TLV's type field.
+		i += (l + 3)
+	}
+
+	return tlvs, nil
+}
+
+func (t *REX) newTLV(b byte) RCP {
+	switch int(b) {
+	case 9:
+		r := new(Seq)
+		r.index = 2
+		r.parentMsg = t.parentMsg
+		return r
+	default:
+		r := new(TLV)
+		r.parentMsg = t.parentMsg
+		return r
+	}
+}
 
 // A NTF is a Notify Message TLV (Complex TLV).
 type NTF struct {
@@ -193,9 +291,58 @@ func (t *NTF) Name() string { return "Notify" }
 // IsComplex returns whether a Notify Message TLV is Complex or not.
 func (t *NTF) IsComplex() bool { return true }
 
+func (t *NTF) parseTLVs(b []byte) ([]RCP, error) {
+	var tlvs []RCP
+	for i := 0; len(b[i:]) != 0; {
+		l, err := boundsChk(i, b)
+		if err != nil {
+			return nil, err
+		}
+
+		tlv := t.newTLV(b[i])
+
+		// Unmarshal at the current offset, up to the expected length.
+		if err := tlv.unmarshal(b[i : i+3+l]); err != nil {
+			return nil, err
+		}
+
+		switch {
+		case l > 3 && tlv.IsComplex():
+			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
+			if err != nil {
+				return nil, err
+			}
+			tlvs = append(tlvs, tlv)
+			tlvs = append(tlvs, rectlv...)
+		case l <= 3 || !tlv.IsComplex():
+			tlvs = append(tlvs, tlv)
+		}
+		// Advance to the next TLV's type field.
+		i += (l + 3)
+	}
+
+	return tlvs, nil
+}
+
+func (t *NTF) newTLV(b byte) RCP {
+	switch int(b) {
+	case 9:
+		r := new(Seq)
+		r.index = 3
+		r.parentMsg = t.parentMsg
+		return r
+	default:
+		r := new(TLV)
+		r.parentMsg = t.parentMsg
+		return r
+	}
+}
+
 // A Seq is a Sequence TLV (Complex TLV).
 type Seq struct {
 	TLV
+	// index identifies whether this is part of IRA(1), REX(2) or NTF(3).
+	index uint8
 }
 
 // Name returns the type name of a Sequence TLV.
@@ -204,9 +351,78 @@ func (t *Seq) Name() string { return "Sequence" }
 // IsComplex returns whether a Sequence TLV is Complex or not.
 func (t *Seq) IsComplex() bool { return true }
 
+func (t *Seq) parseTLVs(b []byte) ([]RCP, error) {
+	var tlvs []RCP
+	for i := 0; len(b[i:]) != 0; {
+		l, err := boundsChk(i, b)
+		if err != nil {
+			return nil, err
+		}
+
+		tlv := t.newTLV(b[i])
+
+		// Unmarshal at the current offset, up to the expected length.
+		if err := tlv.unmarshal(b[i : i+3+l]); err != nil {
+			return nil, err
+		}
+
+		switch {
+		case l > 3 && tlv.IsComplex():
+			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
+			if err != nil {
+				return nil, err
+			}
+			tlvs = append(tlvs, tlv)
+			tlvs = append(tlvs, rectlv...)
+		case l <= 3 || !tlv.IsComplex():
+			tlvs = append(tlvs, tlv)
+		}
+		// Advance to the next TLV's type field.
+		i += (l + 3)
+	}
+
+	return tlvs, nil
+}
+
+func (t *Seq) newTLV(b byte) RCP {
+	switch int(b) {
+	case 10:
+		r := new(SeqNmr)
+		r.index = t.index
+		r.parentMsg = t.parentMsg
+		return r
+	case 11:
+		r := new(Oper)
+		r.index = t.index
+		r.parentMsg = t.parentMsg
+		return r
+	case 50:
+		r := new(RpdCap)
+		//r.index = t.index
+		r.parentMsg = t.parentMsg
+		return r
+	case 86:
+		r := new(GenrlNtf)
+		//r.index = t.index
+		r.parentMsg = t.parentMsg
+		return r
+	case 100:
+		r := new(RpdInfo)
+		//r.index = t.index
+		r.parentMsg = t.parentMsg
+		return r
+	default:
+		r := new(TLV)
+		r.parentMsg = t.parentMsg
+		return r
+	}
+}
+
 // A SeqNmr is a SequenceNumber TLV.
 type SeqNmr struct {
 	TLV
+	// index identifies whether this is part of IRA(1), REX(2) or NTF(3).
+	index uint8
 }
 
 // Name returns the type name of a NTF Message TLV.
@@ -214,11 +430,17 @@ func (t *SeqNmr) Name() string { return "SequenceNumber" }
 
 // Val returns the value a SequenceNumber TLV carries.
 func (t *SeqNmr) Val() interface{} {
-	if t.parentMsg != nil {
-		// Might not be a NTF, B=but IRA or REX
+	if t.parentMsg == nil {
+		fmt.Printf("\n***\n***\nDEBUG: EMPTY SeqNmr!\n***\n***\n")
+		t.parentMsg = new(GCP)
+	}
+	switch t.index {
+	case 1:
+		t.parentMsg.IRA.Sequence.SequenceNumber = u16Val(t.Value)
+	case 2:
+		t.parentMsg.REX.Sequence.SequenceNumber = u16Val(t.Value)
+	case 3:
 		t.parentMsg.NTF.Sequence.SequenceNumber = u16Val(t.Value)
-	} else {
-		fmt.Printf("\n***\n***\nEMPTY SeqNmr!\n***\n***\n")
 	}
 	return u16Val(t.Value)
 }
@@ -226,6 +448,8 @@ func (t *SeqNmr) Val() interface{} {
 // A Oper is a Operation TLV.
 type Oper struct {
 	TLV
+	// index identifies whether this is part of IRA(1), REX(2) or NTF(3).
+	index uint8
 }
 
 // Name returns the type name of a Operation TLV.
@@ -237,6 +461,11 @@ func (t *Oper) Val() interface{} {
 		return fmt.Errorf("unexpected lenght: %v, want: 1", len(t.Value))
 	}
 	s := "Unknown Operation"
+
+	if t.parentMsg == nil {
+		fmt.Printf("\n***\n***\nDEBUG: EMPTY Operation!\n***\n***\n")
+		t.parentMsg = new(GCP)
+	}
 
 	switch int(t.Value[0]) {
 	case 1:
@@ -257,12 +486,16 @@ func (t *Oper) Val() interface{} {
 		s = "AllocateWriteResponse"
 	default:
 	}
-	if t.parentMsg != nil {
-		// Might not be a NTF, B=but IRA or REX
+
+	switch t.index {
+	case 1:
+		t.parentMsg.IRA.Sequence.Operation = s
+	case 2:
+		t.parentMsg.REX.Sequence.Operation = s
+	case 3:
 		t.parentMsg.NTF.Sequence.Operation = s
-	} else {
-		fmt.Printf("\n***\n***\nEMPTY SeqNmr!\n***\n***\n")
 	}
+
 	return s
 }
 

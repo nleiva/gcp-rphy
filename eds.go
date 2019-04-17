@@ -2,6 +2,7 @@ package gcp
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 )
 
@@ -38,8 +39,12 @@ func (p *EDSReq) Print() string {
 	if p == nil {
 		return ""
 	}
+	var t TLV
+	// g := new(GCP)
+	// t.parentMsg = g
+
 	data := "\n"
-	tlvs, err := parseTLVs(p.DataStr)
+	tlvs, err := t.parseTLVs(p.DataStr)
 	if err != nil {
 		return err.Error()
 	}
@@ -51,6 +56,8 @@ func (p *EDSReq) Print() string {
 			data = data + fmt.Sprintf("        Type: %s, \tLength: %v, \tValue: %v\n", t.Name(), t.Len(), t.Val())
 		}
 	}
+	js, _ := json.MarshalIndent(t.parentMsg, "", "  ")
+	data = data + fmt.Sprintf("%s\n", js)
 	return fmt.Sprintf(`
     Transaction ID: %d
     Mode: %v
@@ -122,8 +129,12 @@ func (p *EDSRes) Print() string {
 	if p == nil {
 		return ""
 	}
+	var t TLV
+	// g := new(GCP)
+	// t.parentMsg = g
+
 	data := "\n"
-	tlvs, err := parseTLVs(p.DataStr)
+	tlvs, err := t.parseTLVs(p.DataStr)
 	if err != nil {
 		return err.Error()
 	}
@@ -135,6 +146,8 @@ func (p *EDSRes) Print() string {
 			data = data + fmt.Sprintf("        Type: %s, \tLength: %v, \tValue: %v\n", t.Name(), t.Len(), t.Val())
 		}
 	}
+	js, _ := json.MarshalIndent(t.parentMsg, "", "  ")
+	data = data + fmt.Sprintf("%s\n", js)
 	return fmt.Sprintf(`
     Transaction ID: %d
     Mode: %v

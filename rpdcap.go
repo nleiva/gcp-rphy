@@ -3,7 +3,9 @@ package gcp
 import "fmt"
 
 // A RpdCap is a RpdCapabilities TLV (Complex TLV).
-type RpdCap struct{ TLV }
+type RpdCap struct {
+	TLV
+}
 
 // Name returns the type name of a RpdCapabilities TLV.
 func (t *RpdCap) Name() string { return "RpdCapabilities" }
@@ -15,10 +17,12 @@ func (t *RpdCap) newTLV(b byte) RCP {
 	switch int(b) {
 	case 19:
 		r := new(RpdIdf)
+		// r.index = t.index
 		r.parentMsg = t.parentMsg
 		return r
 	case 24:
 		r := new(DevLoc)
+		// r.index = t.index
 		r.parentMsg = t.parentMsg
 		return r
 	default:
@@ -64,7 +68,9 @@ func (t *RpdCap) parseTLVs(b []byte) ([]RCP, error) {
 }
 
 // A RpdIdf is a RpdIdentification TLV (Complex TLV).
-type RpdIdf struct{ TLV }
+type RpdIdf struct {
+	TLV
+}
 
 // Name returns the type name of a RpdIdentification TLV.
 func (t *RpdIdf) Name() string { return "RpdIdentification" }
@@ -621,7 +627,11 @@ func (t *CurSwIdx) Val() interface{} {
 }
 
 // A DevLoc is a Device Location TLV (Complex TLV).
-type DevLoc struct{ TLV }
+type DevLoc struct {
+	TLV
+	// index identifies whether this is part of IRA(1), REX(2) or NTF(3).
+	index uint8
+}
 
 // Name returns the type name of a Device Location TLV.
 func (t *DevLoc) Name() string { return "Device Location" }

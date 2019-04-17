@@ -7,6 +7,7 @@ import (
 // A GenrlNtf is a GeneralNotification TLV (Complex TLV).
 type GenrlNtf struct {
 	TLV
+	index uint8
 }
 
 // Name returns the type name of a GeneralNotification TLV.

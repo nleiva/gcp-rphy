@@ -7,6 +7,7 @@ import (
 // A RpdInfo is a RpdInfo TLV (Complex TLV).
 type RpdInfo struct {
 	TLV
+	index uint8
 }
 
 // Name returns the type name of a RpdInfo TLV.
