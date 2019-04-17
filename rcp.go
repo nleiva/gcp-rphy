@@ -11,9 +11,10 @@ import (
 
 // A TLV represents a RCP TLV message.
 type TLV struct {
-	Type   uint8  // Type: 1 byte
-	Length uint16 // Value Length: 2 bytes
-	Value  []byte
+	Type      uint8  // Type: 1 byte
+	Length    uint16 // Value Length: 2 bytes
+	Value     []byte
+	parentMsg *GCP
 }
 
 // An RCP encodes a TLV used in the Remote PHY System Control Plane (RCP).
@@ -116,26 +117,47 @@ func (t *TLV) parseTLVs(b []byte) ([]RCP, error) {
 func (t *TLV) newTLV(b byte) RCP {
 	switch int(b) {
 	case 1:
-		return new(IRA)
+		r := new(IRA)
+		r.parentMsg = t.parentMsg
+		return r
 	case 2:
-		return new(REX)
+		r := new(REX)
+		r.parentMsg = t.parentMsg
+		return r
 	case 3:
-		return new(NTF)
+		r := new(NTF)
+		r.parentMsg = t.parentMsg
+		return r
 	case 9:
-		return new(Seq)
+		r := new(Seq)
+		r.parentMsg = t.parentMsg
+		return r
 	case 10:
-		return new(SeqNmr)
+		r := new(SeqNmr)
+		r.parentMsg = t.parentMsg
+		return r
 	case 11:
-		return new(Oper)
+		r := new(Oper)
+		r.parentMsg = t.parentMsg
+		return r
 	case 50:
-		return new(RpdCap)
+		r := new(RpdCap)
+		r.parentMsg = t.parentMsg
+		return r
 	case 86:
-		return new(GenrlNtf)
+		r := new(GenrlNtf)
+		r.parentMsg = t.parentMsg
+		return r
 	case 100:
-		return new(RpdInfo)
+		r := new(RpdInfo)
+		r.parentMsg = t.parentMsg
+		return r
 	default:
-		return new(TLV)
+		r := new(TLV)
+		r.parentMsg = t.parentMsg
+		return r
 	}
+
 }
 
 // A IRA is a IRA Message TLV (Complex TLV).
@@ -191,7 +213,15 @@ type SeqNmr struct {
 func (t *SeqNmr) Name() string { return "SequenceNumber" }
 
 // Val returns the value a SequenceNumber TLV carries.
-func (t *SeqNmr) Val() interface{} { return u16Val(t.Value) }
+func (t *SeqNmr) Val() interface{} {
+	if t.parentMsg != nil {
+		// Might not be a NTF, B=but IRA or REX
+		t.parentMsg.NTF.Sequence.SequenceNumber = u16Val(t.Value)
+	} else {
+		fmt.Printf("\n***\n***\nEMPTY SeqNmr!\n***\n***\n")
+	}
+	return u16Val(t.Value)
+}
 
 // A Oper is a Operation TLV.
 type Oper struct {
@@ -206,25 +236,34 @@ func (t *Oper) Val() interface{} {
 	if len(t.Value) != 1 {
 		return fmt.Errorf("unexpected lenght: %v, want: 1", len(t.Value))
 	}
+	s := "Unknown Operation"
+
 	switch int(t.Value[0]) {
 	case 1:
-		return "Read"
+		s = "Read"
 	case 2:
-		return "Write"
+		s = "Write"
 	case 3:
-		return "Delete"
+		s = "Delete"
 	case 4:
-		return "ReadResponse"
+		s = "ReadResponse"
 	case 5:
-		return "WriteResponse"
+		s = "WriteResponse"
 	case 6:
-		return "DeleteResponse"
+		s = "DeleteResponse"
 	case 7:
-		return "AllocateWrite"
+		s = "AllocateWrite"
 	case 8:
-		return "AllocateWriteResponse"
+		s = "AllocateWriteResponse"
+	default:
 	}
-	return "Unknown Operation"
+	if t.parentMsg != nil {
+		// Might not be a NTF, B=but IRA or REX
+		t.parentMsg.NTF.Sequence.Operation = s
+	} else {
+		fmt.Printf("\n***\n***\nEMPTY SeqNmr!\n***\n***\n")
+	}
+	return s
 }
 
 // parseTLVs parses Top Level and General Purpose TLVs.
@@ -253,20 +292,22 @@ func stringVal(b []byte) string {
 	return string(b)
 }
 
-func u8Val(b []byte) interface{} {
-	// TODO: Should I stick to uint8 and return "0" if there is an error?
+func u8Val(b []byte) string {
 	if len(b) != 1 {
 		return fmt.Sprintf("unexpected lenght: %v, want: 1", len(b))
 	}
-	return uint8(b[0])
+	if b[0] == 0 {
+		return "0"
+	}
+	return string(b[0])
 }
 
-func u16Val(b []byte) interface{} {
-	// TODO: Should I stick to uint16 and return "0" if there is an error?
+func u16Val(b []byte) string {
 	if len(b) != 2 {
 		return fmt.Sprintf("unexpected lenght: %v, want: 2", len(b))
 	}
-	return binary.BigEndian.Uint16(b)
+	v := binary.BigEndian.Uint16(b)
+	return strconv.FormatUint(uint64(v), 10)
 }
 
 func u32Val(b []byte) interface{} {
@@ -277,8 +318,7 @@ func u32Val(b []byte) interface{} {
 	return binary.BigEndian.Uint32(b)
 }
 
-func timeVal(b []byte) interface{} {
-	// TODO: Should I stick to uint32 and return "0" if there is an error?
+func timeVal(b []byte) string {
 	if len(b) != 4 {
 		return fmt.Sprintf("unexpected lenght: %v, want: 4", len(b))
 	}
@@ -286,7 +326,8 @@ func timeVal(b []byte) interface{} {
 	if t == 0 {
 		return "0"
 	}
-	return time.Unix(int64(t), 0)
+	// We receive a hundredths of a second
+	return time.Unix(int64(t)*100, 0).String()
 }
 
 func macVal(b []byte) string {
@@ -304,49 +345,40 @@ func ipVal(b []byte) string {
 	return net.IP(b).String()
 }
 
-// General purpose TLVs
-//
-// RfChannelSelector Complex TLV 12
-// RfPortSelector Complex TLV 13
-// RpdGlobal Complex TLV 15
-// VendorSpecificExtension Complex TLV 21
-// RpdRedirect Complex TLV 25
+func timeRFC2579Val(b []byte) string {
+	l := len(b)
+	if l != 8 && l != 11 {
+		return fmt.Sprintf("unexpected lenght: %v, want: 8 or 11", l)
+	}
+	year := binary.BigEndian.Uint16(b[0:2])
+	month := uint8(b[2])
+	day := uint8(b[3])
+	hour := uint8(b[4])
+	min := uint8(b[5])
+	sec := uint8(b[6])
+	// deci-seconds 0..9
+	dsec := uint8(b[7])
 
-// RPD Capabilities TLVs
-// 50
-// RpdCapabilities Complex TLV 50
-//   RpdIdentification Complex TLV 19
-//   LcceChannelReachability Complex TLV 20
-//   PilotToneCapabilities Complex TLV 21
-//   AllocDsChanResources Complex TLV 22
-//   AllocUsChanResources Complex TLV 23
-//   DeviceLocation Complex TLV 24
-//   RdtiCapabilities Complex TLV 34
-//   UsPowerCapabilities Complex TLV 49
-//   StaticPwCapabilities Complex TLV 50
-//   DsCapabilities Complex TLV 51
-//   GcpCapabilities Complex TLV 52
-//   SwImageCapabilities Complex TLV 53
-//   OfdmConfigurationCapabilities Complex TLV 54
-//     PmapCapabilities Complex TLV 3
-//   ResetCapabilities Complex TLV 55
-//   RpdCoreRedundancyCapabilities Complex TLV 56
-//   FdxCapabilities Complex 57
-//     EcCapabilities Complex TLV 4
-//   SpectrumCaptureCapabilities Complex TLV 59
-//     SacCapabilities Complex TLV 2
-//   RfmCapabilities Complex TLV 60
-//     NodeRfPortCapabilities Complex TLV 17
-//   UpstreamCapabilities Complex TLV 61
-//   PmtudCapabilities Complex TLV 62
+	var dir, offHour, offMin uint8
+	if l == 11 {
+		// direction from UTC '+' / '-'
+		dir = uint8(b[8])
+		offHour = uint8(b[9])
+		offMin = uint8(b[10])
+	}
 
-// RPD Operational Configuration TLVs
-// 15
-// RpdGlobal Complex TLV 15 ?
-//   EvCfg Complex TLV 1
-//     EvControl Complex TLV 1
-//   GcpConnVerification Complex TLV 2
-//   IpConfig Complex TLV 3
-//   UepiControl Complex TLV 4
-//   LldpConfig Complex TLV 6
-// ...
+	var utcOffset time.Duration
+	utcOffset += time.Duration(offHour) * time.Hour
+	utcOffset += time.Duration(offMin) * time.Minute
+	var loc *time.Location
+	if dir == '-' {
+		loc = time.FixedZone("", -int(utcOffset.Seconds()))
+	} else {
+		loc = time.FixedZone("", int(utcOffset.Seconds()))
+	}
+
+	nsec := int(dsec) * 100 * int(time.Millisecond)
+	t := time.Date(int(year), time.Month(month), int(day), int(hour), int(min), int(sec), nsec, loc)
+
+	return t.String()
+}

@@ -2,6 +2,7 @@ package gcp
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 )
 
@@ -27,19 +28,28 @@ func (p *NotifyReq) Print() string {
 	if p == nil {
 		return ""
 	}
-	data := "\n"
-	tlvs, err := parseTLVs(p.EvntData)
+	var t TLV
+	g := new(GCP)
+	g.NTF = &dSeq{}
+	t.parentMsg = g
+
+	tlvs, err := t.parseTLVs(p.EvntData)
 	if err != nil {
 		return err.Error()
 	}
+
+	// For debugging purposes
+	debug := "\n"
 	for _, t := range tlvs {
 		switch t.IsComplex() {
 		case true:
-			data = data + fmt.Sprintf("        Type: %s, \tLength: %v ->\n", t.Name(), t.Len())
+			debug = debug + fmt.Sprintf("        Type: %s, \tLength: %v ->\n", t.Name(), t.Len())
 		default:
-			data = data + fmt.Sprintf("        Type: %s, \tLength: %v, \tValue: %v\n", t.Name(), t.Len(), t.Val())
+			debug = debug + fmt.Sprintf("        Type: %s, \tLength: %v, \tValue: %v\n", t.Name(), t.Len(), t.Val())
 		}
 	}
+	js, _ := json.MarshalIndent(g, "", "  ")
+	data := "\n" + fmt.Sprintf("%s\n", js)
 	return fmt.Sprintf(`
     Transaction ID: %d
     Mode: %v
