@@ -30,9 +30,6 @@ func (p *NotifyReq) Print() string {
 	}
 	// The RCP Top Level TLV for this message.
 	var t TLV
-	//g := new(GCP)
-	// g.NTF = &dSeq{}
-	//t.parentMsg = g
 
 	tlvs, err := t.parseTLVs(p.EvntData)
 	if err != nil {
@@ -40,7 +37,7 @@ func (p *NotifyReq) Print() string {
 	}
 
 	// For debugging purposes
-	debug := "\n"
+	var debug string
 	for _, t := range tlvs {
 		switch t.IsComplex() {
 		case true:

@@ -216,11 +216,6 @@ func (t *IPAddress) IsComplex() bool { return true }
 
 func (t *IPAddress) newTLV(b byte) RCP {
 	switch int(b) {
-	// IMPORTANT
-	// Port Index is not the first value sent/received in this case.
-	// This makes indexing for JSON output very challenging. Need to
-	// come up with a best approach here as the current one is not correct.
-	// Potentially carry the entire IPAddress data struct in the TLV.
 	case 1:
 		r := new(AddrType)
 		r.parentMsg = t.parentMsg
@@ -323,10 +318,6 @@ func (t *EnPortIdx) Val() interface{} {
 	if len(t.Value) != 1 {
 		return fmt.Errorf("unexpected lenght: %v, want: 1", len(t.Value))
 	}
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY EnetPortIndex!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := u8Val(t.Value)
 	t.parentMsg.REX.Sequence.RpdInfo.IfEnet[t.portIndex].EnetPortIndex = s
 	return s
@@ -343,10 +334,6 @@ func (t *IfName) Name() string { return "Name" }
 
 // Val returns the value a Name TLV carries.
 func (t *IfName) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY IfName!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := stringVal(t.Value)
 	t.parentMsg.REX.Sequence.RpdInfo.IfEnet[t.portIndex].Name = s
 	return s
@@ -363,10 +350,6 @@ func (t *Descr) Name() string { return "Description" }
 
 // Val returns the value a Descr TLV carries.
 func (t *Descr) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY Descr!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := stringVal(t.Value)
 	t.parentMsg.REX.Sequence.RpdInfo.IfEnet[t.portIndex].Descr = s
 	return s
@@ -383,10 +366,6 @@ func (t *IifType) Name() string { return "Type" }
 
 // Val returns the value a Type TLV carries.
 func (t *IifType) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY Type!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := u16Val(t.Value)
 	switch s {
 	case "1":
@@ -410,10 +389,6 @@ func (t *Alias) Name() string { return "Alias" }
 
 // Val returns the value a Alias TLV carries.
 func (t *Alias) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY Alias!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := stringVal(t.Value)
 	t.parentMsg.REX.Sequence.RpdInfo.IfEnet[t.portIndex].Alias = s
 	return s
@@ -430,10 +405,6 @@ func (t *Mtu) Name() string { return "Mtu" }
 
 // Val returns the value a Mtu TLV carries.
 func (t *Mtu) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY Mtu!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := u32Val(t.Value)
 	t.parentMsg.REX.Sequence.RpdInfo.IfEnet[t.portIndex].MTU = s
 	return s
@@ -450,10 +421,6 @@ func (t *PhyAddr) Name() string { return "PhysAddress" }
 
 // Val returns the value a PhysAddress TLV carries.
 func (t *PhyAddr) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY PhysAddress!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := macVal(t.Value)
 	t.parentMsg.REX.Sequence.RpdInfo.IfEnet[t.portIndex].PhysAddress = s
 	return s
@@ -483,10 +450,6 @@ func (t *AdmStatus) Val() interface{} {
 		s = "testing"
 	default:
 		s = "Unknown AdminStatus"
-	}
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY AdminStatus!\n***\n***\n")
-		t.parentMsg = new(GCP)
 	}
 	t.parentMsg.REX.Sequence.RpdInfo.IfEnet[t.portIndex].AdminStatus = s
 	return s
@@ -525,10 +488,6 @@ func (t *OperStatus) Val() interface{} {
 	default:
 		s = "Unknown OperStatus"
 	}
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY OperStatus!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	t.parentMsg.REX.Sequence.RpdInfo.IfEnet[t.portIndex].OperStatus = s
 	return s
 }
@@ -544,10 +503,6 @@ func (t *LastChange) Name() string { return "LastChange" }
 
 // Val returns the value a LastChange TLV carries.
 func (t *LastChange) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY LastChange!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := timeVal(t.Value)
 	t.parentMsg.REX.Sequence.RpdInfo.IfEnet[t.portIndex].LastChange = s
 	return s
@@ -564,10 +519,6 @@ func (t *HighSpeed) Name() string { return "HighSpeed" }
 
 // Val returns the value a HighSpeed TLV carries.
 func (t *HighSpeed) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY HighSpeed!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	// Speed in units of 1,000,000 bits per second.
 	s := u32Val(t.Value) + " Mbps"
 	t.parentMsg.REX.Sequence.RpdInfo.IfEnet[t.portIndex].HighSpeed = s
@@ -585,10 +536,6 @@ func (t *LinkTrap) Name() string { return "LinkUpDownTrapEnable" }
 
 // Val returns the value a LinkUpDownTrapEnable TLV carries.
 func (t *LinkTrap) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY LinkUpDownTrapEnable!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := u8Val(t.Value)
 	switch s {
 	case "1":
@@ -612,10 +559,6 @@ func (t *PromMode) Name() string { return "PromiscuousMode" }
 
 // Val returns the value a PromiscuousMode TLV carries.
 func (t *PromMode) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY PromiscuousMode!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := u8Val(t.Value)
 	switch s {
 	case "1":
@@ -639,10 +582,6 @@ func (t *ConPres) Name() string { return "PromiscuousMode" }
 
 // Val returns the value a ConnectorPresent  TLV carries.
 func (t *ConPres) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY ConnectorPresent !\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	s := u8Val(t.Value)
 	var b bool
 	switch s {

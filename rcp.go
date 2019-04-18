@@ -135,30 +135,6 @@ func (t *TLV) newTLV(b byte) RCP {
 		r.parentMsg = t.parentMsg
 		r.parentMsg.NTF = &dSeq{}
 		return r
-	// case 9:
-	// 	r := new(Seq)
-	// 	r.parentMsg = t.parentMsg
-	// 	return r
-	// case 10:
-	// 	r := new(SeqNmr)
-	// 	r.parentMsg = t.parentMsg
-	// 	return r
-	// case 11:
-	// 	r := new(Oper)
-	// 	r.parentMsg = t.parentMsg
-	// 	return r
-	// case 50:
-	// 	r := new(RpdCap)
-	// 	r.parentMsg = t.parentMsg
-	// 	return r
-	// case 86:
-	// 	r := new(GenrlNtf)
-	// 	r.parentMsg = t.parentMsg
-	// 	return r
-	// case 100:
-	// 	r := new(RpdInfo)
-	// 	r.parentMsg = t.parentMsg
-	// 	return r
 	default:
 		log.Printf("RCP Top Level TLV type: %d not supported", int(b))
 		return nil
@@ -291,10 +267,6 @@ func (t *ResCode) Name() string { return "ResponseCode" }
 func (t *ResCode) Val() interface{} {
 	if len(t.Value) != 1 {
 		return fmt.Errorf("unexpected lenght: %v, want: 1", len(t.Value))
-	}
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY ResponseCode!\n***\n***\n")
-		t.parentMsg = new(GCP)
 	}
 	var s string
 	switch int(t.Value[0]) {
@@ -494,10 +466,6 @@ func (t *SeqNmr) Name() string { return "SequenceNumber" }
 
 // Val returns the value a SequenceNumber TLV carries.
 func (t *SeqNmr) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY SeqNmr!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
 	switch t.index {
 	case 1:
 		t.parentMsg.IRA.Sequence.SequenceNumber = u16Val(t.Value)
@@ -524,13 +492,7 @@ func (t *Oper) Val() interface{} {
 	if len(t.Value) != 1 {
 		return fmt.Errorf("unexpected lenght: %v, want: 1", len(t.Value))
 	}
-	s := "Unknown Operation"
-
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY Operation!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-
+	var s string
 	switch int(t.Value[0]) {
 	case 1:
 		s = "Read"

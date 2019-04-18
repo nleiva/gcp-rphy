@@ -219,13 +219,9 @@ func (t *VendorName) Name() string { return "VendorName" }
 // Val returns the value a VendorName TLV carries.
 // A string identifying the RPD's manufacturer.
 func (t *VendorName) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY VendorName!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.VendorName = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.VendorName = s
+	return s
 }
 
 // A VendorID is a VendorId TLV.
@@ -237,13 +233,9 @@ func (t *VendorID) Name() string { return "VendorId" }
 // Val returns the value a VendorId TLV carries.
 // An unsigned short with Vendor Id of the RPD's manufacturer
 func (t *VendorID) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY VendorId!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.VendorID = u16Val(t.Value)
-	return u16Val(t.Value)
+	s := u16Val(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.VendorID = s
+	return s
 }
 
 // A ModelNbr is a ModelNumber TLV.
@@ -255,13 +247,9 @@ func (t *ModelNbr) Name() string { return "ModelNumber" }
 // Val returns the value a ModelNumber TLV carries.
 // A string identifying the RPD's model number.
 func (t *ModelNbr) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY ModelNumber!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.ModelNumber = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.ModelNumber = s
+	return s
 }
 
 // A DevMacAddr is a DeviceMacAddress TLV.
@@ -273,13 +261,9 @@ func (t *DevMacAddr) Name() string { return "DeviceMacAddress" }
 // Val returns the value a DeviceMacAddress TLV carries.
 // The MAC address used to uniquely identify the RPD.
 func (t *DevMacAddr) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY DeviceMacAddress!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.DeviceMacAddress = macVal(t.Value)
-	return macVal(t.Value)
+	s := macVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.DeviceMacAddress = s
+	return s
 }
 
 // A CurSwVer is a CurrentSwVersion TLV.
@@ -291,13 +275,9 @@ func (t *CurSwVer) Name() string { return "CurrentSwVersion" }
 // Val returns the value a CurrentSwVersion TLV carries.
 // A string representing the SW version currently running on of the RPD.
 func (t *CurSwVer) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY CurrentSwVersion!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.CurrentSwVersion = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.CurrentSwVersion = s
+	return s
 }
 
 // A BootVer is a BootRomVersion TLV.
@@ -310,13 +290,9 @@ func (t *BootVer) Name() string { return "BootRomVersion" }
 // A string representing the BootRom version currently installed
 // on of the RPD.
 func (t *BootVer) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY BootRomVersion!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.BootRomVersion = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.BootRomVersion = s
+	return s
 }
 
 // A DevDesc is a DeviceDescription TLV.
@@ -328,13 +304,9 @@ func (t *DevDesc) Name() string { return "DeviceDescription" }
 // Val returns the value a DeviceDescription TLV carries.
 // A string selected by the RPD manufacturer.
 func (t *DevDesc) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY DeviceDescription!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.DeviceDescription = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.DeviceDescription = s
+	return s
 }
 
 // A DevAlias is a DeviceAlias TLV.
@@ -346,13 +318,9 @@ func (t *DevAlias) Name() string { return "DeviceAlias" }
 // Val returns the value a DeviceAlias TLV carries.
 // A string communicating device's name assigned by the operator.
 func (t *DevAlias) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY DeviceAlias!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.DeviceAlias = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.DeviceAlias = s
+	return s
 }
 
 // A SerialNum is a SerialNumber TLV.
@@ -364,13 +332,9 @@ func (t *SerialNum) Name() string { return "SerialNumber" }
 // Val returns the value a SerialNumber TLV carries.
 // A string representing device's serial number.
 func (t *SerialNum) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY SerialNumber!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.SerialNumber = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.SerialNumber = s
+	return s
 }
 
 // A UsBurRecID is a UsBurstReceiverVendorId TLV.
@@ -383,13 +347,9 @@ func (t *UsBurRecID) Name() string { return "UsBurstReceiverVendorId" }
 // An unsigned 16-bit integer with the IANA Enterprise Code of
 // the manufacturer of the RPD's US burst receiver.
 func (t *UsBurRecID) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY UsBurstReceiverVendorId!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.UsBurstReceiverVendorID = u16Val(t.Value)
-	return u16Val(t.Value)
+	s := u16Val(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.UsBurstReceiverVendorID = s
+	return s
 }
 
 // A UsBurRecMod is a UsBurstReceiverModelNumber TLV.
@@ -403,13 +363,9 @@ func (t *UsBurRecMod) Name() string { return "UsBurstReceiverModelNumber" }
 // burst receiver. If not available from the vendor, report a zerolength string.
 func (t *UsBurRecMod) Val() interface{} {
 	// The length of this one is 0-16, not 0-255. Do I create a new stringVal func for this?
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY UsBurstReceiverModelNumber!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.UsBurstReceiverModelNumber = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.UsBurstReceiverModelNumber = s
+	return s
 }
 
 // A UsBurRecDrv is a UsBurstReceiverDriverVersion TLV.
@@ -424,13 +380,9 @@ func (t *UsBurRecDrv) Name() string { return "UsBurstReceiverDriverVersion" }
 // is not available or not applicable.
 func (t *UsBurRecDrv) Val() interface{} {
 	// The length of this one is 0-16, not 0-255. Do I create a new stringVal func for this?
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY UsBurstReceiverDriverVersion!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.UsBurstReceiverDriverVersion = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.UsBurstReceiverDriverVersion = s
+	return s
 }
 
 // A UsBurRecSN is a UsBurstReceiverSerialNumber TLV.
@@ -445,13 +397,9 @@ func (t *UsBurRecSN) Name() string { return "UsBurstReceiverSerialNumber" }
 // available
 func (t *UsBurRecSN) Val() interface{} {
 	// The length of this one is 0-16, not 0-255. Do I create a new stringVal func for this?
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY UsBurstReceiverSerialNumber!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.UsBurstReceiverSerialNumber = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.UsBurstReceiverSerialNumber = s
+	return s
 }
 
 // A RpdRcpPrVer is a RpdRcpProtocolVersion TLV.
@@ -464,13 +412,9 @@ func (t *RpdRcpPrVer) Name() string { return "RpdRcpProtocolVersion" }
 // A string identifying the RCP protocol version supported by the RPD.
 func (t *RpdRcpPrVer) Val() interface{} {
 	// The length of this one is 3-32, not 0-255. Do I create a new stringVal func for this?
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY RpdRcpProtocolVersion!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.RpdRcpProtocolVersion = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.RpdRcpProtocolVersion = s
+	return s
 }
 
 // A RpdRcpSchVer is a RpdRcpSchemaVersion TLV.
@@ -483,13 +427,9 @@ func (t *RpdRcpSchVer) Name() string { return "RpdRcpSchemaVersion" }
 // A string identifying the RCP schema version supported by the RPD.
 func (t *RpdRcpSchVer) Val() interface{} {
 	// The length of this one is 5-32, not 0-255. Do I create a new stringVal func for this?
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY RpdRcpSchemaVersion!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.RpdRcpSchemaVersion = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.RpdRcpSchemaVersion = s
+	return s
 }
 
 // A HwRev is a HwRevision TLV.
@@ -501,13 +441,9 @@ func (t *HwRev) Name() string { return "HwRevision" }
 // Val returns the value a HwRevision TLV carries.
 // A string identifying the revision of the RPD hardware.
 func (t *HwRev) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY HwRevision!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.HwRevision = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.HwRevision = s
+	return s
 }
 
 // An AsID is a AssetId TLV.
@@ -521,13 +457,9 @@ func (t *AsID) Name() string { return "AssetId" }
 // The default value is the zero-length string or "".
 func (t *AsID) Val() interface{} {
 	// The length of this one is 0-32, not 0-255. Do I create a new stringVal func for this?
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY AssetId!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.AssetID = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.AssetID = s
+	return s
 }
 
 // A VspSel is a VspSelector TLV.
@@ -541,13 +473,9 @@ func (t *VspSel) Name() string { return "VspSelector" }
 // VSP the RPD communicates VSP as a zero-length string.
 func (t *VspSel) Val() interface{} {
 	// The length of this one is 0-16, not 0-255. Do I create a new stringVal func for this?
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY VspSelector!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.VspSelector = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.VspSelector = s
+	return s
 }
 
 // A CurSwUpd is a CurrentSwImageLastUpdate TLV.
@@ -559,13 +487,9 @@ func (t *CurSwUpd) Name() string { return "CurrentSwImageLastUpdate" }
 // Val returns the value a CurrentSwImageLastUpdate TLV carries.
 // An octet string conforming to the definition of DateAndTime from [RFC 2578].
 func (t *CurSwUpd) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY CurrentSwImageLastUpdate!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.CurrentSwImageLastUpdate = timeRFC2579Val(t.Value)
-	return timeRFC2579Val(t.Value)
+	s := timeRFC2579Val(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.CurrentSwImageLastUpdate = s
+	return s
 }
 
 // A CurSwName is a CurrentSwImageName TLV.
@@ -577,13 +501,9 @@ func (t *CurSwName) Name() string { return "CurrentSwImageName" }
 // Val returns the value a CurrentSwImageName TLV carries.
 // A string with the name of the current SW image.
 func (t *CurSwName) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY CurrentSwImageName!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.CurrentSwImageName = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.CurrentSwImageName = s
+	return s
 }
 
 // A CurSwSer is a CurrentSwImageServer TLV.
@@ -596,13 +516,9 @@ func (t *CurSwSer) Name() string { return "CurrentSwImageServer" }
 // The IP Address of the server from which the current SW image
 // was downloaded.
 func (t *CurSwSer) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY CurrentSwImageServer!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.CurrentSwImageServer = ipVal(t.Value)
-	return ipVal(t.Value)
+	s := ipVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.CurrentSwImageServer = s
+	return s
 }
 
 // A CurSwIdx is a CurrrentSwImageIndex TLV.
@@ -617,13 +533,9 @@ func (t *CurSwIdx) Name() string { return "CurrrentSwImageIndex" }
 // permitted by this specification: 0..3.
 // The value of zero is reserved for the main SW image.
 func (t *CurSwIdx) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY CurrrentSwImageIndex!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.CurrrentSwImageIndex = u8Val(t.Value)
-	return u8Val(t.Value)
+	s := u8Val(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.RpdIdentification.CurrrentSwImageIndex = s
+	return s
 }
 
 // A DevLoc is a Device Location TLV (Complex TLV).
@@ -706,13 +618,9 @@ func (t *DevLocDesc) Name() string { return "Device Location Description" }
 // been installed, such as a street address. The format is specific
 // to the operator.
 func (t *DevLocDesc) Val() interface{} {
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY Device Location Description!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
-	t.parentMsg.NTF.Sequence.RpdCapabilities.DeviceLocation.Description = stringVal(t.Value)
-	return stringVal(t.Value)
+	s := stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.DeviceLocation.Description = s
+	return s
 }
 
 // A GeoLocLat is a Geographic Location Latitude TLV.
@@ -729,14 +637,10 @@ func (t *GeoLocLat) Val() interface{} {
 	if len(t.Value) != 9 {
 		return fmt.Sprintf("unexpected lenght: %v, want: 9", len(t.Value))
 	}
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY Geographic Location Latitude!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
+	s := stringVal(t.Value)
 	// TODO: Parse ISO 6709-2008
-	t.parentMsg.NTF.Sequence.RpdCapabilities.DeviceLocation.Latitude = stringVal(t.Value)
-	return stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.DeviceLocation.Latitude = s
+	return s
 }
 
 // A GeoLocLon is a Geographic Location Longitude TLV.
@@ -754,12 +658,8 @@ func (t *GeoLocLon) Val() interface{} {
 	if len(t.Value) != 10 {
 		return fmt.Sprintf("unexpected lenght: %v, want: 9", len(t.Value))
 	}
-	if t.parentMsg == nil {
-		fmt.Printf("\n***\n***\nDEBUG: EMPTY Geographic Location Longitude!\n***\n***\n")
-		t.parentMsg = new(GCP)
-	}
-	// Might not be a NTF, but IRA or REX
+	s := stringVal(t.Value)
 	// TODO: Parse ISO 6709-2008
-	t.parentMsg.NTF.Sequence.RpdCapabilities.DeviceLocation.Longitude = stringVal(t.Value)
-	return stringVal(t.Value)
+	t.parentMsg.NTF.Sequence.RpdCapabilities.DeviceLocation.Longitude = s
+	return s
 }
