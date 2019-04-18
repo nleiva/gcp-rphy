@@ -28,6 +28,7 @@ func (p *NotifyReq) Print() string {
 	if p == nil {
 		return ""
 	}
+	// The RCP Top Level TLV for this message.
 	var t TLV
 	//g := new(GCP)
 	// g.NTF = &dSeq{}

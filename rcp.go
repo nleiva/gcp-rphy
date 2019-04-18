@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"strconv"
 	"time"
@@ -159,15 +160,13 @@ func (t *TLV) newTLV(b byte) RCP {
 	// 	r.parentMsg = t.parentMsg
 	// 	return r
 	default:
-		fmt.Printf("RCP Top Level TLVs type: %d not supported", int(b))
+		log.Printf("RCP Top Level TLV type: %d not supported", int(b))
 		return nil
 	}
 }
 
 // A IRA is a IRA Message TLV (Complex TLV).
-type IRA struct {
-	TLV
-}
+type IRA struct{ TLV }
 
 // Name returns the type name of a IRA Message TLV.
 func (t *IRA) Name() string { return "IRA" }
@@ -223,9 +222,7 @@ func (t *IRA) newTLV(b byte) RCP {
 }
 
 // A REX is a REX Message TLV (Complex TLV).
-type REX struct {
-	TLV
-}
+type REX struct{ TLV }
 
 // Name returns the type name of a REX Message TLV.
 func (t *REX) Name() string { return "REX" }
@@ -273,6 +270,10 @@ func (t *REX) newTLV(b byte) RCP {
 		r.index = 2
 		r.parentMsg = t.parentMsg
 		return r
+	case 19:
+		r := new(ResCode)
+		r.parentMsg = t.parentMsg
+		return r
 	default:
 		r := new(TLV)
 		r.parentMsg = t.parentMsg
@@ -280,10 +281,70 @@ func (t *REX) newTLV(b byte) RCP {
 	}
 }
 
-// A NTF is a Notify Message TLV (Complex TLV).
-type NTF struct {
-	TLV
+// A ResCode is an ResponseCode TLV.
+type ResCode struct{ TLV }
+
+// Name returns the type name of an ResponseCode TLV.
+func (t *ResCode) Name() string { return "ResponseCode" }
+
+// Val returns the value an ResponseCode TLV carries.
+func (t *ResCode) Val() interface{} {
+	if len(t.Value) != 1 {
+		return fmt.Errorf("unexpected lenght: %v, want: 1", len(t.Value))
+	}
+	if t.parentMsg == nil {
+		fmt.Printf("\n***\n***\nDEBUG: EMPTY ResponseCode!\n***\n***\n")
+		t.parentMsg = new(GCP)
+	}
+	var s string
+	switch int(t.Value[0]) {
+	case 0:
+		s = "NoError"
+	case 1:
+		s = "GeneralError"
+	case 2:
+		s = "ResponseTooBig"
+	case 3:
+		s = "AttributeNotFound"
+	case 4:
+		s = "BadIndex"
+	case 5:
+		s = "WriteToReadOnly"
+	case 6:
+		s = "InconsistentValue"
+	case 7:
+		s = "WrongLength"
+	case 8:
+		s = "WrongValue"
+	case 9:
+		s = "ResourceUnavailable"
+	case 10:
+		s = "AuthorizationFailure"
+	case 11:
+		s = "AttributeMissing"
+	case 12:
+		s = "AllocationFailure"
+	case 13:
+		s = "AllocationNoOwner"
+	case 14:
+		s = "ErrorProcessingUCD"
+	case 15:
+		s = "ErrorProcessingOCD"
+	case 16:
+		s = "ErrorProcessingDPD"
+	case 17:
+		s = "SessionIdInUse"
+	case 18:
+		s = "DoesNotExist"
+	default:
+		s = "Unknown Notification"
+	}
+	t.parentMsg.REX.Sequence.ResponseCode = s
+	return s
 }
+
+// A NTF is a Notify Message TLV (Complex TLV).
+type NTF struct{ TLV }
 
 // Name returns the type name of a Notify Message TLV.
 func (t *NTF) Name() string { return "Notify" }
@@ -398,7 +459,7 @@ func (t *Seq) newTLV(b byte) RCP {
 		return r
 	case 50:
 		r := new(RpdCap)
-		//r.index = t.index
+		t.parentMsg.NTF.Sequence.RpdCapabilities = new(RpdC)
 		r.parentMsg = t.parentMsg
 		return r
 	case 86:
@@ -408,8 +469,11 @@ func (t *Seq) newTLV(b byte) RCP {
 		return r
 	case 100:
 		r := new(RpdInfo)
-		//r.index = t.index
+		t.parentMsg.REX.Sequence.RpdInfo = new(RpdI)
 		r.parentMsg = t.parentMsg
+		// IfEnet and IPAddress indexes for their slices.
+		r.Ifindex = -1
+		r.IPindex = -1
 		return r
 	default:
 		r := new(TLV)
@@ -529,10 +593,7 @@ func u8Val(b []byte) string {
 	if len(b) != 1 {
 		return fmt.Sprintf("unexpected lenght: %v, want: 1", len(b))
 	}
-	if b[0] == 0 {
-		return "0"
-	}
-	return string(b[0])
+	return strconv.Itoa(int(b[0]))
 }
 
 func u16Val(b []byte) string {
@@ -543,12 +604,12 @@ func u16Val(b []byte) string {
 	return strconv.FormatUint(uint64(v), 10)
 }
 
-func u32Val(b []byte) interface{} {
-	// TODO: Should I stick to uint32 and return "0" if there is an error?
+func u32Val(b []byte) string {
 	if len(b) != 4 {
 		return fmt.Sprintf("unexpected lenght: %v, want: 4", len(b))
 	}
-	return binary.BigEndian.Uint32(b)
+	v := binary.BigEndian.Uint32(b)
+	return strconv.FormatUint(uint64(v), 10)
 }
 
 func timeVal(b []byte) string {

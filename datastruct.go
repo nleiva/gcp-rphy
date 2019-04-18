@@ -16,7 +16,9 @@ type dSeq struct {
 type Sequence struct {
 	SequenceNumber  string `json:"Sequence Number,omitempty"`
 	Operation       string `json:"Operation,omitempty"`
-	RpdCapabilities RpdC   `json:"RPD Capabilities,omitempty"`
+	RpdCapabilities *RpdC  `json:"RPD Capabilities,omitempty"`
+	ResponseCode    string `json:"Response Code,omitempty"`
+	RpdInfo         *RpdI  `json:"RPD Info,omitempty"`
 }
 
 // A RpdC represents a RpdCapabilities data structure.
@@ -133,4 +135,98 @@ type DeLoc struct {
 	// This object allows the RPD to inform the CCAP Core about the longitude
 	// portion of its geographic location.
 	Longitude string `json:"Geographic Location Longitude,omitempty"`
+}
+
+// A RpdI represents a RpdInfo data structure.
+type RpdI struct {
+	// This object provides details about the Ethernet interfaces on the RPD.
+	// The attributes of this object are based on the ifTable/ifXTable specified
+	// in [RFC 2863].
+	IfEnet []IfEn `json:"IfEnet,omitempty"`
+	// This object contains addressing information relevant to the RPD's interfaces.
+	IPAddress []IPAdd `json:"IpAddress,omitempty"`
+}
+
+// A IfEn represents an IfEnet data structure.
+type IfEn struct {
+	// This key attribute reports a unique index for this Ethernet port interface.
+	EnetPortIndex string `json:"Port Index,omitempty"`
+	// This attribute reports a textual string representing a name that describes
+	// the interface.
+	Name string `json:"Name,omitempty"`
+	// This attribute reports a textual string containing information about the
+	// Ethernet interface.
+	Descr string `json:"Description,omitempty"`
+	// This attribute reports the type of interface. Additional values for Type
+	// are assigned by the Internet Assigned Numbers Authority (IANA), through
+	// updating the syntax of the IANAifType textual convention.
+	Type string `json:"Type,omitempty"`
+	// This attribute reports an Alias for the interface. On the first instantiation
+	// of an interface, the value of Alias associated with that interface is the
+	// zero-length string.
+	Alias string `json:"Alias,omitempty"`
+	// This attribute reports the size of the largest packet that can be sent/received
+	// on the interface, specified in octets.
+	MTU string `json:"MTU,omitempty"`
+	// This attribute reports the interface's address at its protocol sub-layer.
+	// For example, for an 802.x interface, this attribute normally
+	// contains a MAC address.
+	PhysAddress string `json:"Physical Address,omitempty"`
+	// This attribute reports the state of the interface. The testing(3) state
+	// indicates that no operational packets can be passed. When a managed system
+	// initializes, all interfaces start with AdminStatus in the down(2) state.
+	AdminStatus string `json:"Admin State,omitempty"`
+	// This attribute reports the current operational state of the interface.
+	// The testing(3) state indicates that no operational packets can be passed.
+	// If AdminStatus is down(2) then OperStatus should be down(2).
+	OperStatus string `json:"Operational State,omitempty"`
+	// This attribute reports the value of RpdSysUpTime at the time the interface
+	// entered its current operational state.
+	LastChange string `json:"Last Change,omitempty"`
+	// This attribute reports an estimate of the interface's current bandwidth
+	// in units of 1,000,000 bits per second.
+	HighSpeed string `json:"Bandwidth,omitempty"`
+	// This attribute reports whether linkup/linkdown traps are generated for this
+	// interface. A value of '1' indicates that traps are enabled.
+	LinkUpDownTrapEnable string `json:"LinkUpDownTrapEnable,omitempty"`
+	// This attribute reports a value of '2' (false) if this interface only accepts
+	// packets/frames that are addressed to this interface. This attribute reports a
+	// value of '1' (true) when the station accepts all packets/frames transmitted
+	// on the media.
+	PromiscuousMode string `json:"PromiscuousMode,omitempty"`
+	// This attribute reports the value 'true' if the interface sublayer has a physical
+	// connector and the value 'false' otherwise.
+	ConnectorPresent bool `json:"Connector Present,omitempty"`
+	// This attribute reports the network authentication status of this interface.
+	NetworkAuthStatus string `json:"Network Auth Status,omitempty"`
+}
+
+// A IPAdd represents an IPAddress data structure.
+type IPAdd struct {
+	// This key attribute reports the IP address type of the IpAddress attribute.
+	AddrType string `json:"Address Type,omitempty"`
+	// This key attribute reports the IP address to which this entry's addressing
+	// information pertains
+	IPAddress string `json:"IP Address,omitempty"`
+	// This attribute reports a unique index for this Ethernet port interface.
+	EnetPortIndex string `json:"Port Index,omitempty"`
+	// This attribute reports the type of traffic for which the address can be used.
+	Type string `json:"Type,omitempty"`
+	// This attribute reports the prefix length associated with this address.
+	PrefixLen string `json:"Prefix Length,omitempty"`
+	// This attribute reports the origin of this IP address.
+	// 'manual' indicates an IP address that was manually configured.
+	// 'dhcp' indicates an IP address that was assigned by a DHCP server.
+	Origin string `json:"Origin,omitempty"`
+	// This attribute reports the status of an address. Most of the states
+	// correspond to states from the IPv6 Stateless Address Autoconfiguration protocol.
+	Status string `json:"Status,omitempty"`
+	// This attribute reports the value of RpdSysUpTime at the time this entry
+	// was created. If this entry was created prior to the last re-initialization
+	// of the local network management subsystem, then this attribute contains a zero value.
+	Created string `json:"Created,omitempty"`
+	// This attribute reports the value of RpdSysUpTime at the time this entry
+	// was last updated. If this entry was updated prior to the last re-initialization
+	// of the local network management subsystem, then this attribute contains a zero value.
+	LastChanged string `json:"Last Changed,omitempty"`
 }

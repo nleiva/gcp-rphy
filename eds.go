@@ -39,6 +39,7 @@ func (p *EDSReq) Print() string {
 	if p == nil {
 		return ""
 	}
+	// The RCP Top Level TLV for this message.
 	var t TLV
 	// g := new(GCP)
 	// t.parentMsg = g
@@ -129,6 +130,7 @@ func (p *EDSRes) Print() string {
 	if p == nil {
 		return ""
 	}
+	// The RCP Top Level TLV for this message.
 	var t TLV
 	// g := new(GCP)
 	// t.parentMsg = g
