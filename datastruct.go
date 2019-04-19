@@ -18,6 +18,8 @@ type Sequence struct {
 	Operation       string `json:"Operation,omitempty"`
 	RpdCapabilities *RpdC  `json:"RPD Capabilities,omitempty"`
 	ResponseCode    string `json:"Response Code,omitempty"`
+	RpdRedirect     *RpdR  `json:"RPD Redirect,omitempty"`
+	GeneralNtf      *GNtf  `json:"General Notification,omitempty"`
 	RpdInfo         *RpdI  `json:"RPD Info,omitempty"`
 }
 
@@ -135,6 +137,24 @@ type DeLoc struct {
 	// This object allows the RPD to inform the CCAP Core about the longitude
 	// portion of its geographic location.
 	Longitude string `json:"Geographic Location Longitude,omitempty"`
+}
+
+// A RpdR represents a RpdRedirect data structure.
+// This TLV is used to communicate an ordered list of CCAP Cores to which
+// the RPD is redirected.
+type RpdR struct {
+	// This TLV communicates an IPv4 address of CCAP Core to which the RPD
+	// is redirected.
+	RpdRedirectIPAddress string `json:"IP Address,omitempty"`
+}
+
+// A GNtf represents a GeneralNotification data structure.
+// GeneralNotification is a complex TLV used by the RPD to report events
+// to the CCAP Core.
+type GNtf struct {
+	// NotificationType indicates the specific notification being sent
+	// by the RPD.
+	NotificationType string `json:"Type,omitempty"`
 }
 
 // A RpdI represents a RpdInfo data structure.

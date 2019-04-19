@@ -2,13 +2,11 @@ package gcp
 
 import (
 	"fmt"
+	"log"
 )
 
 // A GenrlNtf is a GeneralNotification TLV (Complex TLV).
-type GenrlNtf struct {
-	TLV
-	index uint8
-}
+type GenrlNtf struct{ TLV }
 
 // Name returns the type name of a GeneralNotification TLV.
 func (t *GenrlNtf) Name() string { return "GeneralNotification" }
@@ -19,9 +17,12 @@ func (t *GenrlNtf) IsComplex() bool { return true }
 func (t *GenrlNtf) newTLV(b byte) RCP {
 	switch int(b) {
 	case 1:
-		return new(NtfType)
+		r := new(NtfType)
+		r.parentMsg = t.parentMsg
+		return r
 	default:
-		return new(TLV)
+		log.Printf("GeneralNotification TLV type: %d not supported", int(b))
+		return nil
 	}
 }
 
@@ -42,19 +43,15 @@ func (t *GenrlNtf) parseTLVs(b []byte) ([]RCP, error) {
 		}
 
 		switch {
-		// Complex TLV
 		case l > 3 && tlv.IsComplex():
-			// Recursive call
 			rectlv, err := tlv.parseTLVs(b[i+3 : i+3+l])
 			if err != nil {
 				return nil, err
 			}
 			tlvs = append(tlvs, tlv)
 			tlvs = append(tlvs, rectlv...)
-		case l < 3 || !tlv.IsComplex():
+		case l <= 3 || !tlv.IsComplex():
 			tlvs = append(tlvs, tlv)
-		default:
-			fmt.Printf("We really shouldn't get here: TLV Type %s\n", tlv.Name())
 		}
 		// Advance to the next TLV's type field.
 		i += (l + 3)
@@ -65,9 +62,7 @@ func (t *GenrlNtf) parseTLVs(b []byte) ([]RCP, error) {
 }
 
 // A NtfType is a NotificationType TLV.
-type NtfType struct {
-	TLV
-}
+type NtfType struct{ TLV }
 
 // Name returns the type name of a NotificationType TLV.
 func (t *NtfType) Name() string { return "NotificationType" }
@@ -77,30 +72,32 @@ func (t *NtfType) Val() interface{} {
 	if len(t.Value) != 1 {
 		return fmt.Errorf("unexpected lenght: %v, want: 1", len(t.Value))
 	}
+	var s string
 	switch int(t.Value[0]) {
 	case 1:
-		return "StartUpNotification"
+		s = "StartUpNotification"
 	case 2:
-		return "RedirectResultNotification"
+		s = "RedirectResultNotification"
 	case 3:
-		return "PtpResultNotification"
+		s = "PtpResultNotification"
 	case 4:
-		return "AuxCoreResultNotification"
+		s = "AuxCoreResultNotification"
 	case 5:
-		return "TimeOutNotification"
+		s = "TimeOutNotification"
 	case 7:
-		return "ReconnectNotification"
+		s = "ReconnectNotification"
 	case 8:
-		return "AuxCoreGcpStatusNotification"
+		s = "AuxCoreGcpStatusNotification"
 	case 9:
-		return "ChannelUcdRefreshRequest"
+		s = "ChannelUcdRefreshRequest"
 	case 10:
-		return "HandoverNotification"
+		s = "HandoverNotification"
 	case 11:
-		return "SsdFailureNotification"
+		s = "SsdFailureNotification"
 	default:
-		return "Unknown Notification"
 	}
+	t.parentMsg.NTF.Sequence.GeneralNtf.NotificationType = s
+	return s
 }
 
 // IsComplex returns whether a NotificationType TLV is Complex or not.

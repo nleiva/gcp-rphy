@@ -123,17 +123,17 @@ func (t *TLV) newTLV(b byte) RCP {
 	case 1:
 		r := new(IRA)
 		r.parentMsg = t.parentMsg
-		r.parentMsg.IRA = &dSeq{}
+		r.parentMsg.IRA = new(dSeq)
 		return r
 	case 2:
 		r := new(REX)
 		r.parentMsg = t.parentMsg
-		r.parentMsg.REX = &dSeq{}
+		r.parentMsg.REX = new(dSeq)
 		return r
 	case 3:
 		r := new(NTF)
 		r.parentMsg = t.parentMsg
-		r.parentMsg.NTF = &dSeq{}
+		r.parentMsg.NTF = new(dSeq)
 		return r
 	default:
 		log.Printf("RCP Top Level TLV type: %d not supported", int(b))
@@ -187,13 +187,13 @@ func (t *IRA) newTLV(b byte) RCP {
 	switch int(b) {
 	case 9:
 		r := new(Seq)
+		// Parent TLV Type
 		r.index = 1
 		r.parentMsg = t.parentMsg
 		return r
 	default:
-		r := new(TLV)
-		r.parentMsg = t.parentMsg
-		return r
+		log.Printf("IRA TLV type: %d not supported", int(b))
+		return nil
 	}
 }
 
@@ -243,76 +243,14 @@ func (t *REX) newTLV(b byte) RCP {
 	switch int(b) {
 	case 9:
 		r := new(Seq)
+		// Parent TLV Type
 		r.index = 2
 		r.parentMsg = t.parentMsg
 		return r
-	case 19:
-		r := new(ResCode)
-		r.parentMsg = t.parentMsg
-		return r
 	default:
-		r := new(TLV)
-		r.parentMsg = t.parentMsg
-		return r
+		log.Printf("REX TLV type: %d not supported", int(b))
+		return nil
 	}
-}
-
-// A ResCode is an ResponseCode TLV.
-type ResCode struct{ TLV }
-
-// Name returns the type name of an ResponseCode TLV.
-func (t *ResCode) Name() string { return "ResponseCode" }
-
-// Val returns the value an ResponseCode TLV carries.
-func (t *ResCode) Val() interface{} {
-	if len(t.Value) != 1 {
-		return fmt.Errorf("unexpected lenght: %v, want: 1", len(t.Value))
-	}
-	var s string
-	switch int(t.Value[0]) {
-	case 0:
-		s = "NoError"
-	case 1:
-		s = "GeneralError"
-	case 2:
-		s = "ResponseTooBig"
-	case 3:
-		s = "AttributeNotFound"
-	case 4:
-		s = "BadIndex"
-	case 5:
-		s = "WriteToReadOnly"
-	case 6:
-		s = "InconsistentValue"
-	case 7:
-		s = "WrongLength"
-	case 8:
-		s = "WrongValue"
-	case 9:
-		s = "ResourceUnavailable"
-	case 10:
-		s = "AuthorizationFailure"
-	case 11:
-		s = "AttributeMissing"
-	case 12:
-		s = "AllocationFailure"
-	case 13:
-		s = "AllocationNoOwner"
-	case 14:
-		s = "ErrorProcessingUCD"
-	case 15:
-		s = "ErrorProcessingOCD"
-	case 16:
-		s = "ErrorProcessingDPD"
-	case 17:
-		s = "SessionIdInUse"
-	case 18:
-		s = "DoesNotExist"
-	default:
-		s = "Unknown Notification"
-	}
-	t.parentMsg.REX.Sequence.ResponseCode = s
-	return s
 }
 
 // A NTF is a Notify Message TLV (Complex TLV).
@@ -361,13 +299,13 @@ func (t *NTF) newTLV(b byte) RCP {
 	switch int(b) {
 	case 9:
 		r := new(Seq)
+		// Parent TLV Type
 		r.index = 3
 		r.parentMsg = t.parentMsg
 		return r
 	default:
-		r := new(TLV)
-		r.parentMsg = t.parentMsg
-		return r
+		log.Printf("NTF TLV type: %d not supported", int(b))
+		return nil
 	}
 }
 
@@ -429,6 +367,16 @@ func (t *Seq) newTLV(b byte) RCP {
 		r.index = t.index
 		r.parentMsg = t.parentMsg
 		return r
+	case 19:
+		r := new(ResCode)
+		r.index = t.index
+		r.parentMsg = t.parentMsg
+		return r
+	case 25:
+		r := new(RpdRed)
+		t.parentMsg.IRA.Sequence.RpdRedirect = new(RpdR)
+		r.parentMsg = t.parentMsg
+		return r
 	case 50:
 		r := new(RpdCap)
 		t.parentMsg.NTF.Sequence.RpdCapabilities = new(RpdC)
@@ -436,7 +384,7 @@ func (t *Seq) newTLV(b byte) RCP {
 		return r
 	case 86:
 		r := new(GenrlNtf)
-		//r.index = t.index
+		t.parentMsg.NTF.Sequence.GeneralNtf = new(GNtf)
 		r.parentMsg = t.parentMsg
 		return r
 	case 100:
@@ -448,9 +396,8 @@ func (t *Seq) newTLV(b byte) RCP {
 		r.IPindex = -1
 		return r
 	default:
-		r := new(TLV)
-		r.parentMsg = t.parentMsg
-		return r
+		log.Printf("Sequence TLV type: %d not supported", int(b))
+		return nil
 	}
 }
 
@@ -522,6 +469,76 @@ func (t *Oper) Val() interface{} {
 		t.parentMsg.NTF.Sequence.Operation = s
 	}
 
+	return s
+}
+
+// A ResCode is an ResponseCode TLV.
+type ResCode struct {
+	TLV
+	// index identifies whether this is part of IRA(1), REX(2) or NTF(3).
+	index uint8
+}
+
+// Name returns the type name of an ResponseCode TLV.
+func (t *ResCode) Name() string { return "ResponseCode" }
+
+// Val returns the value an ResponseCode TLV carries.
+func (t *ResCode) Val() interface{} {
+	if len(t.Value) != 1 {
+		return fmt.Errorf("unexpected lenght: %v, want: 1", len(t.Value))
+	}
+	var s string
+	switch int(t.Value[0]) {
+	case 0:
+		s = "NoError"
+	case 1:
+		s = "GeneralError"
+	case 2:
+		s = "ResponseTooBig"
+	case 3:
+		s = "AttributeNotFound"
+	case 4:
+		s = "BadIndex"
+	case 5:
+		s = "WriteToReadOnly"
+	case 6:
+		s = "InconsistentValue"
+	case 7:
+		s = "WrongLength"
+	case 8:
+		s = "WrongValue"
+	case 9:
+		s = "ResourceUnavailable"
+	case 10:
+		s = "AuthorizationFailure"
+	case 11:
+		s = "AttributeMissing"
+	case 12:
+		s = "AllocationFailure"
+	case 13:
+		s = "AllocationNoOwner"
+	case 14:
+		s = "ErrorProcessingUCD"
+	case 15:
+		s = "ErrorProcessingOCD"
+	case 16:
+		s = "ErrorProcessingDPD"
+	case 17:
+		s = "SessionIdInUse"
+	case 18:
+		s = "DoesNotExist"
+	default:
+		s = "Unknown Notification"
+	}
+
+	switch t.index {
+	case 1:
+		t.parentMsg.IRA.Sequence.ResponseCode = s
+	case 2:
+		t.parentMsg.REX.Sequence.ResponseCode = s
+	case 3:
+		t.parentMsg.NTF.Sequence.ResponseCode = s
+	}
 	return s
 }
 

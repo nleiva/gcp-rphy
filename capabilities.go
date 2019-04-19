@@ -1,11 +1,12 @@
 package gcp
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 // A RpdCap is a RpdCapabilities TLV (Complex TLV).
-type RpdCap struct {
-	TLV
-}
+type RpdCap struct{ TLV }
 
 // Name returns the type name of a RpdCapabilities TLV.
 func (t *RpdCap) Name() string { return "RpdCapabilities" }
@@ -17,18 +18,15 @@ func (t *RpdCap) newTLV(b byte) RCP {
 	switch int(b) {
 	case 19:
 		r := new(RpdIdf)
-		// r.index = t.index
 		r.parentMsg = t.parentMsg
 		return r
 	case 24:
 		r := new(DevLoc)
-		// r.index = t.index
 		r.parentMsg = t.parentMsg
 		return r
 	default:
-		r := new(TLV)
-		r.parentMsg = t.parentMsg
-		return r
+		log.Printf("RpdCapabilities TLV type: %d not supported", int(b))
+		return nil
 	}
 }
 
@@ -68,9 +66,7 @@ func (t *RpdCap) parseTLVs(b []byte) ([]RCP, error) {
 }
 
 // A RpdIdf is a RpdIdentification TLV (Complex TLV).
-type RpdIdf struct {
-	TLV
-}
+type RpdIdf struct{ TLV }
 
 // Name returns the type name of a RpdIdentification TLV.
 func (t *RpdIdf) Name() string { return "RpdIdentification" }
@@ -169,9 +165,8 @@ func (t *RpdIdf) newTLV(b byte) RCP {
 		r.parentMsg = t.parentMsg
 		return r
 	default:
-		r := new(TLV)
-		r.parentMsg = t.parentMsg
-		return r
+		log.Printf("RpdIdentification TLV type: %d not supported", int(b))
+		return nil
 	}
 }
 
@@ -566,9 +561,8 @@ func (t *DevLoc) newTLV(b byte) RCP {
 		r.parentMsg = t.parentMsg
 		return r
 	default:
-		r := new(TLV)
-		r.parentMsg = t.parentMsg
-		return r
+		log.Printf("DeviceLocation TLV type: %d not supported", int(b))
+		return nil
 	}
 }
 
