@@ -5,7 +5,10 @@ import (
 )
 
 // A RpdRed is a RpdRedirect TLV (Complex TLV).
-type RpdRed struct{ TLV }
+type RpdRed struct {
+	TLV
+	IPindex int8
+}
 
 // Name returns the type name of a RpdRedirect TLV.
 func (t *RpdRed) Name() string { return "RpdRedirect" }
@@ -18,6 +21,7 @@ func (t *RpdRed) newTLV(b byte) RCP {
 	case 1:
 		r := new(RedIPAdd)
 		r.parentMsg = t.parentMsg
+		r.IPindex = t.IPindex
 		return r
 	default:
 		log.Printf("RpdRedirect TLV type: %d not supported", int(b))
@@ -61,7 +65,10 @@ func (t *RpdRed) parseTLVs(b []byte) ([]RCP, error) {
 }
 
 // A RedIPAdd is a RedirectIpAddress TLV.
-type RedIPAdd struct{ TLV }
+type RedIPAdd struct {
+	TLV
+	IPindex int8
+}
 
 // Name returns the type name of aRedirectIpAddress TLV.
 func (t *RedIPAdd) Name() string { return "RedirectIpAddress" }
@@ -69,7 +76,10 @@ func (t *RedIPAdd) Name() string { return "RedirectIpAddress" }
 // Val returns the value a RedirectIpAddress TLV carries.
 func (t *RedIPAdd) Val() interface{} {
 	s := ipVal(t.Value)
-	t.parentMsg.IRA.Sequence.RpdRedirect.RpdRedirectIPAddress = s
+	t.parentMsg.IRA.Sequence.RpdRedirect.RpdRedirectIPAddress = append(t.parentMsg.IRA.Sequence.RpdRedirect.RpdRedirectIPAddress,
+		s,
+	)
+	// t.parentMsg.IRA.Sequence.RpdRedirect.RpdRedirectIPAddress[t.IPindex] = s
 	return s
 }
 

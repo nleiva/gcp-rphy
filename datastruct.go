@@ -145,7 +145,7 @@ type DeLoc struct {
 type RpdR struct {
 	// This TLV communicates an IPv4 address of CCAP Core to which the RPD
 	// is redirected.
-	RpdRedirectIPAddress string `json:"IP Address,omitempty"`
+	RpdRedirectIPAddress []string `json:"IP Address,omitempty"`
 }
 
 // A GNtf represents a GeneralNotification data structure.

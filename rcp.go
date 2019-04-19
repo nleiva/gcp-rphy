@@ -189,6 +189,8 @@ func (t *IRA) newTLV(b byte) RCP {
 		r := new(Seq)
 		// Parent TLV Type
 		r.index = 1
+		// RpdRedirect index for a list of IP addresses.
+		r.RedIndex = -1
 		r.parentMsg = t.parentMsg
 		return r
 	default:
@@ -314,6 +316,8 @@ type Seq struct {
 	TLV
 	// index identifies whether this is part of IRA(1), REX(2) or NTF(3).
 	index uint8
+	// RpdRedirect index
+	RedIndex int8
 }
 
 // Name returns the type name of a Sequence TLV.
@@ -376,6 +380,9 @@ func (t *Seq) newTLV(b byte) RCP {
 		r := new(RpdRed)
 		t.parentMsg.IRA.Sequence.RpdRedirect = new(RpdR)
 		r.parentMsg = t.parentMsg
+		t.RedIndex++
+		// IPAddress index for its slice.
+		r.IPindex = t.RedIndex
 		return r
 	case 50:
 		r := new(RpdCap)
