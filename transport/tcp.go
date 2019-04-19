@@ -149,7 +149,7 @@ func handleMessage(c net.Conn) {
 		n, err := c.Read(buf)
 		switch {
 		case err == io.EOF:
-			log.Printf("end of the transmition: %s\n", err.Error())
+			log.Printf("end of the transmission: %s\n", err.Error())
 			return
 		case err != nil:
 			log.Printf("failed reading response: %s\n", err.Error())
@@ -165,7 +165,7 @@ func handleMessage(c net.Conn) {
 				log.Printf("could not parse GCP message: %s\n", err.Error())
 				continue
 			}
-			fmt.Printf("Incoming Message (Lenght: %d) ->\n  Message Identifier: %v\n  Length: %v\n  Body: %s\n",
+			fmt.Printf("Incoming Message (Length: %d) ->\n  Message Identifier: %v\n  Length: %v\n  Body: %s\n",
 				n, m.MessageID, m.Lenght, m.Body.Print())
 		}
 	}

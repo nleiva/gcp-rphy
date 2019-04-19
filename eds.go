@@ -2,6 +2,7 @@ package gcp
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 )
 
@@ -38,19 +39,24 @@ func (p *EDSReq) Print() string {
 	if p == nil {
 		return ""
 	}
-	data := "\n"
-	tlvs, err := parseTLVs(p.DataStr)
+	// The RCP Top Level TLV for this message.
+	var t TLV
+
+	tlvs, err := t.parseTLVs(p.DataStr)
 	if err != nil {
 		return err.Error()
 	}
+	var debug string
 	for _, t := range tlvs {
 		switch t.IsComplex() {
 		case true:
-			data = data + fmt.Sprintf("        Type: %s, \tLength: %v ->\n", t.Name(), t.Len())
+			debug = debug + fmt.Sprintf("        Type: %s, \tLength: %v ->\n", t.Name(), t.Len())
 		default:
-			data = data + fmt.Sprintf("        Type: %s, \tLength: %v, \tValue: %v\n", t.Name(), t.Len(), t.Val())
+			debug = debug + fmt.Sprintf("        Type: %s, \tLength: %v, \tValue: %v\n", t.Name(), t.Len(), t.Val())
 		}
 	}
+	js, _ := json.MarshalIndent(t.parentMsg, "", "  ")
+	data := "\n" + fmt.Sprintf("%s\n", js)
 	return fmt.Sprintf(`
     Transaction ID: %d
     Mode: %v
@@ -122,19 +128,24 @@ func (p *EDSRes) Print() string {
 	if p == nil {
 		return ""
 	}
-	data := "\n"
-	tlvs, err := parseTLVs(p.DataStr)
+	// The RCP Top Level TLV for this message.
+	var t TLV
+
+	tlvs, err := t.parseTLVs(p.DataStr)
 	if err != nil {
 		return err.Error()
 	}
+	var debug string
 	for _, t := range tlvs {
 		switch t.IsComplex() {
 		case true:
-			data = data + fmt.Sprintf("        Type: %s, \tLength: %v ->\n", t.Name(), t.Len())
+			debug = debug + fmt.Sprintf("        Type: %s, \tLength: %v ->\n", t.Name(), t.Len())
 		default:
-			data = data + fmt.Sprintf("        Type: %s, \tLength: %v, \tValue: %v\n", t.Name(), t.Len(), t.Val())
+			debug = debug + fmt.Sprintf("        Type: %s, \tLength: %v, \tValue: %v\n", t.Name(), t.Len(), t.Val())
 		}
 	}
+	js, _ := json.MarshalIndent(t.parentMsg, "", "  ")
+	data := "\n" + fmt.Sprintf("%s\n", js)
 	return fmt.Sprintf(`
     Transaction ID: %d
     Mode: %v

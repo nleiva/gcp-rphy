@@ -74,3 +74,28 @@ The following section defines the rules for the application of GCP as a Remote P
 RCP operates as an abstraction layer over the foundation of GCP protocol as defined in [GCP]. RCP provides the set of CCAP Core with to ability to remotely manage a set of objects, such as channels, ports, performance variables, etc.
 RCP relies on the following GCP messages: Notify, Device Management and Exchange Data Structures. The
 encodings of the GCP messages are provided in tables below.
+
+### RCP Messages Types
+
+- **IRA, Identification and Resource Advertising**: An initial message exchanged after authentication in which the CCAP Core obtains all parameters identifying the RPD and its available resources. Sent by CCAP Core in GCP EDS message.
+- **REX, RCP Object Exchange**: A message in which CCAP Core allocates or deallocates resources and configures the resources in the RPD or requests information from the RPD, i.e., statistics or other status data. Sent by the CCAP Core in GCP EDS message. Responded to by the RPD when operation is complete.
+- **NTF, Notification**: A message sent by the RPD to inform the CC
+about a specific event or a set of events. Sent by the RPD in GCP Notify Message. CC does not respond to NTF messages.
+
+### RCP Objects and TLVs
+
+The RCP protocol operates on set of managed objects/TLVs sometimes referred to as ROTs (RCP Objects/TLVs). The ROTs are organized in a hierarchical tree. The top hierarchy consists of top level TLVs, which typically have a complex structure and are referred as Container ROTs. Container ROTs typically represent a set of managed attributes. The bottom of the hierarchy is formed from Leaf ROTs, which are scalars or strings that represent a single
+managed attribute.
+
+An RCP message consists of one or more Sequence(9) TLVs. A valid Sequence(9) TLV of a RCP message consists of:
+
+- Exactly one SequenceNumber(10) TLV;
+- Exactly one Operation(11) TLV;
+- Exactly one top-level container object TLVs called the “Object Set-TLV”, except for a Read Response message that may contain multiple top-level TLVs expanding the wildcarded indexes of a Read Request top-level TLV;
+- Optionally one ReadCount(26) TLV with an Operation(11) value of REX Read(1) or in an IRA message;
+- Exactly one ResponseCode(19) in each Sequence(9) of a response message;
+- Optionally one or more ErrorMessage(20) TLVs in each Sequence(9) of a response message.
+
+A valid RCP Sequence(9) may contain its constituent TLVs in any order.
+
+The top-level container object TLV in the sequence specifies one top-level container in the object hierarchy, but that container may contain an arbitrary set of subsidiary object hierarchy points.
