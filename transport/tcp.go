@@ -165,8 +165,9 @@ func handleMessage(c net.Conn) {
 				log.Printf("could not parse GCP message: %s\n", err.Error())
 				continue
 			}
+			output, _ := m.Body.Process()
 			fmt.Printf("Incoming Message (Length: %d) ->\n  Message Identifier: %v\n  Length: %v\n  Body: %s\n",
-				n, m.MessageID, m.Lenght, m.Body.Print())
+				n, m.MessageID, m.Lenght, output)
 		}
 	}
 }

@@ -34,17 +34,17 @@ func (p *EDSReq) Len() int {
 	return 12 + len(p.DataStr)
 }
 
-// Print generates an output for a Notify Request message.
-func (p *EDSReq) Print() string {
+// Process generates an output for a Notify Request message.
+func (p *EDSReq) Process() (string, *GCP) {
 	if p == nil {
-		return ""
+		return "", nil
 	}
 	// The RCP Top Level TLV for this message.
 	var t TLV
 
 	tlvs, err := t.parseTLVs(p.DataStr)
 	if err != nil {
-		return err.Error()
+		return err.Error(), t.DataStr()
 	}
 	var debug string
 	for _, t := range tlvs {
@@ -66,7 +66,7 @@ func (p *EDSReq) Print() string {
     Vendor Index: %v
     Data Structures: %s`,
 		p.TransactionID, p.Mode, p.Port, p.Channel, p.VendorID,
-		p.VendorIdx, data)
+		p.VendorIdx, data), t.DataStr()
 }
 
 // Marshal implements the Marshal method of MessageBody interface.
@@ -123,17 +123,17 @@ func (p *EDSRes) Len() int {
 	return 12 + len(p.DataStr)
 }
 
-// Print generates an output for a GCP Exchange Data Structures Normal Response message.
-func (p *EDSRes) Print() string {
+// Process generates an output for a GCP Exchange Data Structures Normal Response message.
+func (p *EDSRes) Process() (string, *GCP) {
 	if p == nil {
-		return ""
+		return "", nil
 	}
 	// The RCP Top Level TLV for this message.
 	var t TLV
 
 	tlvs, err := t.parseTLVs(p.DataStr)
 	if err != nil {
-		return err.Error()
+		return err.Error(), t.DataStr()
 	}
 	var debug string
 	for _, t := range tlvs {
@@ -155,7 +155,7 @@ func (p *EDSRes) Print() string {
     Vendor Index: %v
     Data Structures: %s`,
 		p.TransactionID, p.Mode, p.Port, p.Channel, p.VendorID,
-		p.VendorIdx, data)
+		p.VendorIdx, data), t.DataStr()
 }
 
 // Marshal implements the Marshal method of MessageBody interface.

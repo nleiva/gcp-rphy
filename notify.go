@@ -23,17 +23,17 @@ func (p *NotifyReq) Len() int {
 	return 8 + len(p.EvntData)
 }
 
-// Print generates an output for a Notify Request message.
-func (p *NotifyReq) Print() string {
+// Process generates an output for a Notify Request message.
+func (p *NotifyReq) Process() (string, *GCP) {
 	if p == nil {
-		return ""
+		return "", nil
 	}
 	// The RCP Top Level TLV for this message.
 	var t TLV
 
 	tlvs, err := t.parseTLVs(p.EvntData)
 	if err != nil {
-		return err.Error()
+		return err.Error(), t.DataStr()
 	}
 
 	// For debugging purposes
@@ -54,7 +54,7 @@ func (p *NotifyReq) Print() string {
     Status: %d
     Event Code: %d
     Event Data: %s`,
-		p.TransactionID, p.Mode, p.Status, p.EvntCode, data)
+		p.TransactionID, p.Mode, p.Status, p.EvntCode, data), t.DataStr()
 }
 
 // Marshal implements the Marshal method of MessageBody interface.
@@ -102,16 +102,17 @@ func (p *NotifyRes) Len() int {
 	return 7
 }
 
-// Print generates an output for a Notify Response message.
-func (p *NotifyRes) Print() string {
+// Process generates an output for a Notify Response message.
+func (p *NotifyRes) Process() (string, *GCP) {
 	if p == nil {
-		return ""
+		return "", nil
 	}
+
 	return fmt.Sprintf(`
     Transaction ID: %d
     Mode: %v
     Event Code: %d`,
-		p.TransactionID, p.Mode, p.EvntCode)
+		p.TransactionID, p.Mode, p.EvntCode), nil
 }
 
 // Marshal implements the Marshal method of MessageBody interface.
@@ -151,15 +152,15 @@ func (p *NotifyErr) Len() int {
 	return 3
 }
 
-// Print generates an output for a Notify Error message.
-func (p *NotifyErr) Print() string {
+// Process generates an output for a Notify Error message.
+func (p *NotifyErr) Process() (string, *GCP) {
 	if p == nil {
-		return ""
+		return "", nil
 	}
 	return fmt.Sprintf(`
     Transaction ID: %d
     Return Code: %d`,
-		p.TransactionID, p.RtrnCode)
+		p.TransactionID, p.RtrnCode), nil
 }
 
 // Marshal implements the Marshal method of MessageBody interface.

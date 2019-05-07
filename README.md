@@ -33,6 +33,12 @@ Incoming Message (Lenght: 23) ->
 2019/03/29 19:18:50 end of the transmition: EOF
 ```
 
+## Sanity check
+
+```bash
+go test ./...
+```
+
 ## Reading list
 
 Cable related:

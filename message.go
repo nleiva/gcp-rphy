@@ -17,7 +17,7 @@ type Message struct {
 type MessageBody interface {
 	Len() int
 	Marshal() ([]byte, error)
-	Print() string
+	Process() (string, *GCP)
 }
 
 // A MessageID represents a Message ID of a GCP message.
@@ -92,13 +92,13 @@ func (p *RawBody) Len() int {
 	return len(p.Data)
 }
 
-// Print generates an output for a Raw message.
-func (p *RawBody) Print() string {
+// Process generates an output for a Raw message.
+func (p *RawBody) Process() (string, *GCP) {
 	if p == nil {
-		return ""
+		return "", nil
 	}
 	return fmt.Sprintf(`
-	Data: %v`, p.Data)
+	Data: %v`, p.Data), nil
 }
 
 // Marshal implements the Marshal method of MessageBody interface.

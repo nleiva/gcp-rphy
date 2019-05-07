@@ -44,6 +44,9 @@ func (t *TLV) Len() uint16 { return t.Length }
 // Val returns the value the TLV carries.
 func (t *TLV) Val() interface{} { return t.Value }
 
+// DataStr returns the Message Data Structure.
+func (t *TLV) DataStr() *GCP { return t.parentMsg }
+
 func (t *TLV) marshal() ([]byte, error) {
 	l := int(t.Length)
 	if len(t.Value) != l {
