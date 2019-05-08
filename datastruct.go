@@ -6,7 +6,7 @@ type GCP struct {
 	IRA *dSeq `json:"IRA,omitempty"`               // Identification and Resource Advertising
 	REX *dSeq `json:"REX,omitempty"`               // RCP Object Exchange
 	NTF *dSeq `json:"NTF,omitempty"`               // Notify
-	GM  *cmnd `json:"Device Management,omitempty"` // GCP Device Management (GDM)
+	DM  *cmnd `json:"Device Management,omitempty"` // GCP Device Management (GDM)
 
 }
 

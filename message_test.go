@@ -17,6 +17,8 @@ var (
 	rex = "BwMgCEQAAAAAAAAAEYsBAgMRCQMOCgACAAoLAAEEEwABAGQC/ggAbgEAAQICAAR2YmgxAwAmVmlydHVhbCBCYWNraGF1bCBUZW4gR2lnYWJpdCBJbnRlcmZhY2UEAAIABgUAAAYABAAABdwHAAag+ElvQx0IAAEBCQABBwoABAAANV0LAAQAACcQDAABAg0AAQIOAAECCABuAQABAQIABHZiaDADACZWaXJ0dWFsIEJhY2toYXVsIFRlbiBHaWdhYml0IEludGVyZmFjZQQAAgAGBQAABgAEAAAF3AcABqD4SW9DHAgAAQEJAAEBCgAEAAA1uwsABAAAJxAMAAECDQABAg4AAQEPADEBAAQAAAABAgAECgAB/gMAAQQEAAEBBQACABgGAAEEBwABAQgABAAAAAAJAAQAAAAADwAxAQAEAAAAAQIABH8AAAEDAAEHBAABAQUAAgAIBgABBAcAAQEIAAQAAAAACQAEAAAAAA8AMQEABAAAAAECAATAqAEBAwABAwQAAQEFAAIAGAYAAQQHAAEBCAAEAAAAAAkABAAAAAAPAD0BAAQAAAACAgAQAAAAAAAAAAAAAAAAAAAAAQMAAQcEAAEBBQACAIAGAAEBBwABAQgABAAAAAAJAAQAAAAADwA9AQAEAAAAAgIAECABBXgQAAESAAAAAAAAAwEDAAEBBAABAQUAAgBABgABBAcAAQEIAAQAAFyfCQAEAABcnw8APQEABAAAAAICABD+gAAAAAAAAKL4Sf/+b0McAwABAQQAAQEFAAIAQAYAAQEHAAEBCAAEAABcnwkABAAAXJ8PAD0BAAQAAAACAgAQ/oAAAAAAAACi+En//m9DHQMAAQIEAAEBBQACAEAGAAEBBwABAQgABAAAAAAJAAQAAAAADwA9AQAEAAAAAgIAEP6AAAAAAAAAovhJ//5vQx4DAAEDBAABAQUAAgBABgABAQcAAQEIAAQAAAAACQAEAAAAAA8APQEABAAAAAICABD+gAAAAAAAAKgzEf/+ZgAAAwABBAQAAQEFAAIAQAYAAQEHAAEBCAAEAAAAAAkABAAAAAA="
 	// Pre-generated GCP Identification and Resource Advertising message for testing
 	ira = "BwB3Ni0AAAAAAAAAEYsBAQBoCQBlCgACAAELAAEFEwABABkAEwEAECABBXgQAHWoAAAAAAAAAAEZABMBABAgAQV4EAB1oAAAAAAAAAABGQATAQAQIAEFeBAAdaoAAAAAAAAAARkAEwEAECABBXgQAHWiAAAAAAAAAAE="
+	// Pre-generated GCP Device Management (GDM) Request message for testing
+	dm = "BAAIAAEAAAAAAAA="
 )
 
 func TestParseMessage(t *testing.T) {
@@ -28,6 +30,7 @@ func TestParseMessage(t *testing.T) {
 		{name: "Notify", message: ntf, Parser: parseNTF},
 		{name: "RCP Object Exchange", message: rex, Parser: parseREX},
 		{name: "Identification and Resource Advertising", message: ira, Parser: parseIRA},
+		{name: "Device Management", message: dm, Parser: parseDM},
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
@@ -304,6 +307,21 @@ func parseIRA(g *gcp.GCP) error {
 	IPAddr := g.IRA.Sequence.RpdRedirect.RpdRedirectIPAddress
 	if IPAddr[0] != "2001:578:1000:75a8::1" {
 		return fmt.Errorf("RPD Redirect IP Address got: %v, want: %s", IPAddr[0], "2001:578:1000:75a8::1")
+	}
+	return nil
+}
+
+// ParseDM validates parsing of a pre-generated DM Req message.
+/*
+{
+  "Device Management": {
+    "Command": "0"
+  }
+}
+*/
+func parseDM(g *gcp.GCP) error {
+	if g.DM.Command != "0" {
+		return fmt.Errorf("Command got: %v, want: %s", g.DM.Command, "0")
 	}
 	return nil
 }

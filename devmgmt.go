@@ -32,8 +32,8 @@ func (p *DMReq) Process() (string, *GCP) {
 
 	// The RCP Top Level TLV for this message.
 	var g GCP
-	g.GM = new(cmnd)
-	g.GM.Command = strconv.Itoa(int(p.Command))
+	g.DM = new(cmnd)
+	g.DM.Command = strconv.Itoa(int(p.Command))
 
 	js, _ := json.MarshalIndent(g, "", "  ")
 	data := "\n" + fmt.Sprintf("%s\n", js)
