@@ -1,15 +1,23 @@
 package gcp
 
 // A GCP represents a GCP data structure.
+// TODO: These are all just Requests for now, need to add Responses (Normal and Error)
 type GCP struct {
-	IRA *dSeq `json:"IRA,omitempty"` // Identification and Resource Advertising
-	REX *dSeq `json:"REX,omitempty"` // RCP Object Exchange
-	NTF *dSeq `json:"NTF,omitempty"` // Notify
+	IRA *dSeq `json:"IRA,omitempty"`               // Identification and Resource Advertising
+	REX *dSeq `json:"REX,omitempty"`               // RCP Object Exchange
+	NTF *dSeq `json:"NTF,omitempty"`               // Notify
+	GM  *cmnd `json:"Device Management,omitempty"` // GCP Device Management (GDM)
+
 }
 
 // A dSeq represents a URA, REX or NTF data structure.
 type dSeq struct {
 	Sequence Sequence `json:"Sequence,omitempty"`
+}
+
+// A cmnd represents GCP Device Management (GDM) Command.
+type cmnd struct {
+	Command string `json:"Command,omitempty"`
 }
 
 // A Sequence represents a Sequence data structure.

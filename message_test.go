@@ -25,9 +25,9 @@ func TestParseMessage(t *testing.T) {
 		message string
 		Parser  func(g *gcp.GCP) error
 	}{
-		{name: "Notify", message: ntf, Parser: ParseNTF},
-		{name: "RCP Object Exchange", message: rex, Parser: ParseREX},
-		{name: "Identification and Resource Advertising", message: ira, Parser: ParseIRA},
+		{name: "Notify", message: ntf, Parser: parseNTF},
+		{name: "RCP Object Exchange", message: rex, Parser: parseREX},
+		{name: "Identification and Resource Advertising", message: ira, Parser: parseIRA},
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
@@ -95,7 +95,7 @@ func TestParseMessage(t *testing.T) {
   }
 }
 */
-func ParseNTF(g *gcp.GCP) error {
+func parseNTF(g *gcp.GCP) error {
 	if g.NTF.Sequence.SequenceNumber != "1" {
 		return fmt.Errorf("SequenceNumber got: %v, want: %s", g.NTF.Sequence.SequenceNumber, "1")
 	}
@@ -266,7 +266,10 @@ func ParseNTF(g *gcp.GCP) error {
   }
 }
 */
-func ParseREX(g *gcp.GCP) error {
+func parseREX(g *gcp.GCP) error {
+	if g.REX.Sequence.ResponseCode != "NoError" {
+		return fmt.Errorf("Response Code got: %v, want: %s", g.IRA.Sequence.Operation, "NoError")
+	}
 	ifInet := g.REX.Sequence.RpdInfo.IfEnet
 	if ifInet[0].Name != "vbh1" {
 		return fmt.Errorf("IfEnet[0] Name got: %v, want: %s", ifInet[0].Name, "vbh1")
@@ -294,7 +297,7 @@ func ParseREX(g *gcp.GCP) error {
   }
 }
 */
-func ParseIRA(g *gcp.GCP) error {
+func parseIRA(g *gcp.GCP) error {
 	if g.IRA.Sequence.Operation != "WriteResponse" {
 		return fmt.Errorf("Operation got: %v, want: %s", g.IRA.Sequence.Operation, "WriteResponse")
 	}

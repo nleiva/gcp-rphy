@@ -71,6 +71,7 @@ const (
 
 var parseFns = map[MessageID]func(MessageID, []byte) (MessageBody, error){
 	MessageIDNotifyReq: parseNotifyReq,
+	MessageIDGDMReq:    parseDMReq,
 	MessageIDEDSReq:    parseEDSReq,
 	MessageIDEDSRes:    parseEDSRes,
 }
